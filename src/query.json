@@ -1,0 +1,8 @@
+{
+  "sendNotification": true,
+  "notificationAddresses": [
+    "bjorn60@gmail.com" 
+  ],
+  "format": "SQL_TSV_ZIP", 
+  "sql": "SELECT species, countryCode, COUNT(*) FROM occurrence WHERE countryCode IS NOT NULL GROUP BY species, countryCode"
+}

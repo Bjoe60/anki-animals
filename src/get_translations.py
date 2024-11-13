@@ -48,7 +48,8 @@ def get_translations():
     df_translations = get_preferred_only(df_translations)
     df_translations = merge_translations(df_translations)
 
-    df = df.merge(df_translations, left_on='eolID', right_on='page_id', how='left')
+    # Use "inner" merge instead of "left" to keep only species with English name
+    df = df.merge(df_translations, left_on='eolID', right_on='page_id', how='inner')
     df = df.drop(columns=['page_id'])
     
     df.to_csv(os.path.join('data', 'species with translations.csv'), index=False)
