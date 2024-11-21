@@ -41,14 +41,18 @@ def merge_translations(df_translations):
 
 # Gets the English translations for the species
 def get_translations():
-    df = pd.read_csv(os.path.join('data', 'species.csv'))
+    df = pd.read_csv(os.path.join('data', 'species.csv'), dtype={'eolID': int, 'canonicalName': str, 'higherClassification': str, 'inaturalistID': int})
+
     df_translations = pd.read_csv(os.path.join('data', 'vernacularnames.csv'), dtype={'page_id': int, 'canonical_form': str, 'vernacular_string': str, 'language_code': str, 'resource_name': str, 'is_preferred_by_resource': str, 'is_preferred_by_eol': str})
     
     df_translations = df_translations[df_translations['language_code'] == 'eng']
     df_translations = get_preferred_only(df_translations)
     df_translations = merge_translations(df_translations)
 
-    df = df.merge(df_translations, left_on='eolID', right_on='page_id', how='left')
+    df = df.merge(df_translations, left_on='eolID', right_on='page_id', how='inner')
     df = df.drop(columns=['page_id'])
+    df = df.dropna(subset=['inaturalistID'])
     
     df.to_csv(os.path.join('data', 'species with translations.csv'), index=False)
+
+get_translations()

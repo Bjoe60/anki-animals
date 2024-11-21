@@ -12,4 +12,13 @@ def get_species():
 
     print(len(df))
 
+    # Get iNaturalist IDs
+    df_inaturalist = pd.read_csv(os.path.join('data', 'full_provider_ids.csv'), dtype={'node_id': int, 'resource_pk': str, 'resource_id': int, 'page_id': object, 'preferred_canonical_for_page': str})
+    df_inaturalist = df_inaturalist[df_inaturalist['resource_id'] == 1177]
+    df = df.merge(df_inaturalist, left_on='eolID', right_on='page_id', how='left')
+    df = df.drop(columns=['node_id', 'resource_id', 'page_id', 'preferred_canonical_for_page'])
+    df = df.rename(columns={'resource_pk': 'inaturalistID'})
+
     df.to_csv(os.path.join('data', 'species.csv'), index=False)
+
+get_species()
