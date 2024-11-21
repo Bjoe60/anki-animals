@@ -1,6 +1,7 @@
 import pandas as pd
 import os
 from unidecode import unidecode
+from string import capwords
 
 # Gets only translations marked as "preferred"
 def get_preferred_only(df_translations):
@@ -26,7 +27,8 @@ def get_preferred_only(df_translations):
 
 # Merges multiple translations into a single cell
 def merge_translations(df_translations):
-    df_translations['vernacular_string'] = df_translations['vernacular_string'].str.title().fillna('')
+    # Capitalize the first letter of each word
+    df_translations['vernacular_string'] = df_translations['vernacular_string'].fillna('').apply(capwords)
     
     # Remove duplicates written in almost same way
     df_translations['vernacular_string_lower'] = df_translations['vernacular_string'].str.replace(' ', '').str.replace('-', '').str.replace("’", "'").apply(unidecode)
@@ -41,7 +43,7 @@ def merge_translations(df_translations):
 
 # Gets the English translations for the species
 def get_translations():
-    df = pd.read_csv(os.path.join('data', 'species.csv'), dtype={'eolID': int, 'canonicalName': str, 'higherClassification': str, 'inaturalistID': int})
+    df = pd.read_csv(os.path.join('data', 'species.csv'), dtype={'eolID': int, 'canonicalName': str, 'higherClassification': str, 'inaturalistID': object})
 
     df_translations = pd.read_csv(os.path.join('data', 'vernacularnames.csv'), dtype={'page_id': int, 'canonical_form': str, 'vernacular_string': str, 'language_code': str, 'resource_name': str, 'is_preferred_by_resource': str, 'is_preferred_by_eol': str})
     
