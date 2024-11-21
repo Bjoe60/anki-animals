@@ -1,9 +1,13 @@
 import pandas as pd
 import os
 import requests
+from ratelimit import limits, sleep_and_retry
 
 INAT_QUERY_URL = 'https://api.inaturalist.org/v2/taxa/%s?fields=(preferred_common_name:!t,extinct:!t,observations_count:!t,wikipedia_url:!t,wikipedia_summary:!t,taxon_photos:(photo:(attribution:!t,license_code:!t,large_url:!t)))'
 
+# Define the rate limit: 60 calls per minute
+@sleep_and_retry
+@limits(calls=60, period=60)
 def fetch_inaturalist_data(ids):
 	query = INAT_QUERY_URL % ids
 	response = requests.get(query)
