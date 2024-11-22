@@ -3,6 +3,7 @@ import os
 
 # Gets a list of mammals with scientific names and EOL IDs
 def get_species():
+	print("Getting species...")
 	# Download full taxonomy from https://opendata.eol.org/dataset/tram-807-808-809-810-dh-v1-1/resource/00adb47b-57ed-4f6b-8f66-83bfdb5120e8
 	df = pd.read_csv(os.path.join('data', 'taxon.tab'), sep='\t', dtype={'eolID': object, 'taxonID': str, 'acceptedNameUsageID': str, 'parentNameUsageID': str, 'datasetID': str, 'Landmark': object, 'source': str, 'furtherInformationURL': str, 'scientificName': str, 'taxonRank': str, 'taxonomicStatus': str, 'canonicalName': str, 'authority': str, 'higherClassification': str})
 	df = df.dropna(subset=['higherClassification'])
@@ -18,15 +19,13 @@ def get_species():
 	df = df.merge(df_inaturalist, left_on='eolID', right_on='page_id', how='left')
 	df.drop(columns=['node_id', 'resource_id', 'page_id', 'preferred_canonical_for_page'], inplace=True)
 	df.rename(columns={'resource_pk': 'inaturalistID'}, inplace=True)
-	# df.dropna(subset=['inaturalistID'], inplace=True)
+	df.dropna(subset=['inaturalistID'], inplace=True)
 
 	# Get GBIF IDs
 	df_gbif = df_ids[df_ids['resource_id'] == 1178]
 	df = df.merge(df_gbif, left_on='eolID', right_on='page_id', how='left')
 	df.drop(columns=['node_id', 'resource_id', 'page_id', 'preferred_canonical_for_page'], inplace=True)
 	df.rename(columns={'resource_pk': 'gbifID'}, inplace=True)
-	# df.dropna(subset=['gbifID'], inplace=True)
+	df.dropna(subset=['gbifID'], inplace=True)
 
 	df.to_csv(os.path.join('data', 'species.csv'), index=False)
-
-get_species()

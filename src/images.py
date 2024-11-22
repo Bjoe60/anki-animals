@@ -38,18 +38,29 @@ def process_results_to_dataframe(results, original_df):
         })
     results_df = pd.DataFrame(records)
     
-    # Overwrite English if it contains multiple names
+    # Overwrite English name with the one from iNaturalist
     for _, row in results_df.iterrows():
-        mask = original_df['inaturalistID'] == row['inaturalistID']
         if row['preferred_common_name']:
-            original_df.loc[mask, 'English'] = row['preferred_common_name']
+            original_df.loc[original_df['inaturalistID'] == row['inaturalistID'], 'English'] = row['preferred_common_name']
     
     return results_df
 
+def create_csv(df):
+    df['higherClassification'] = df['higherClassification'].str.replace('Life|Cellular Organisms|Eukaryota|Opisthokonta|Metazoa|Bilateria|Deuterostomia|Chordata|Vertebrata|Gnathostomata|Osteichthyes|Sarcopterygii|Tetrapoda|Amniota|Synapsida|Therapsida|Cynodontia|', '').str.replace('|', '::').str.replace(' ', '-')
+    df['higherClassification'] = df['country'] + ' ' + df['higherClassification']
+    with open(os.path.join('data', 'species with translations, countries and images.csv'), 'w', encoding='utf-8', newline='') as f:
+        # Write the header text at the beginning of the file
+        f.write('#separator:Comma\n#html:true\n#notetype:Species\n#deck:Animals\n#tags column:3\n#columns:EOL ID,Scientific,higherClassification,iNaturalist ID,GBIF ID,English,Afrikaans,Albanian,Arabic,Armenian,Azerbaijani,Belarusian,Bengali,Bulgarian,Catalan,Chinese,Croatian,Czech,Danish,Dutch,Estonian,Finnish,French,Galician,Georgian,German,Greek,Hebrew,Hungarian,Icelandic,Indonesian,Italian,Japanese,Kazakh,Korean,Latvian,Lithuanian,Macedonian,Malay,Maltese,Mongolian,Nepali,Norwegian,Persian,Polish,Portuguese,Romanian,Russian,Serbian,Slovak,Slovenian,Spanish,Swahili,Swedish,Thai,Turkish,Ukrainian,Uzbek,Vietnamese,Countries,Images,extinct,Observations,Wikipedia,Summary,preferred_common_name\n')
+        
+        # Save the DataFrame to the file without the index
+        df.to_csv(f, index=False)
+
+    print("Done.")
+
 
 def get_images():
-    df = pd.read_csv(os.path.join('data', 'species with translations and countries.csv'))
-    df.reindex(columns=['eolID', 'canonicalName', 'higherClassification', 'inaturalistID', 'language_code', 'vernacular_string', 'images', 'extinct', 'observations_count', 'wikipedia_url', 'wikipedia_summary'])
+    print("Getting images...")
+    df = pd.read_csv(os.path.join('data', 'species with translations and countries.csv'), dtype={'inaturalistID': int, 'gbifID': int})
 
     # Get list of ids from iNaturalist in integer format
     ids = df['inaturalistID'].unique()[:30]
@@ -62,8 +73,10 @@ def get_images():
         all_results.extend(fetch_inaturalist_data(batch_ids))
 
     results_df = process_results_to_dataframe(all_results, df)
+    # Convert observations_count to object to allow NaNs
+    results_df['observations_count'] = results_df['observations_count'].astype('Int64')
     df_images = df.merge(results_df, on='inaturalistID', how='left', suffixes=('', '_new'))
 
-    df_images.to_csv(os.path.join('data', 'species with translations, countries and images.csv'), index=False)
+    create_csv(df_images)
 
 get_images()

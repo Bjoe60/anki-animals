@@ -4,9 +4,9 @@ from images import get_images
 from countries import get_countries
 
 def main():
-    get_species()
-    get_translations()
-    get_countries()
+    # get_species()
+    # get_translations()
+    # get_countries()
     get_images()
 
 

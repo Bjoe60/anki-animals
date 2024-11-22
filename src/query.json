@@ -4,5 +4,5 @@
     "bjorn60@gmail.com" 
   ],
   "format": "SQL_TSV_ZIP", 
-  "sql": "SELECT specieskey, countrycode FROM occurrence WHERE specieskey IS NOT NULL AND countrycode IS NOT NULL AND occurrencestatus = 'PRESENT' AND (basisofrecord = 'HUMAN_OBSERVATION' OR basisofrecord = 'MACHINE_OBSERVATION' OR basisofrecord = 'OCCURRENCE' OR basisofrecord = 'LIVING_SPECIMEN' OR basisofrecord = 'MATERIAL_SAMPLE') AND NOT ARRAY_CONTAINS(issue, 'ZERO_COORDINATE') AND NOT ARRAY_CONTAINS(issue, 'COORDINATE_OUT_OF_RANGE') AND NOT ARRAY_CONTAINS(issue, 'COUNTRY_COORDINATE_MISMATCH') GROUP BY specieskey, countrycode"
+  "sql": "SELECT specieskey, countrycode FROM occurrence WHERE specieskey IS NOT NULL AND countrycode IS NOT NULL AND occurrencestatus = 'PRESENT' AND (basisofrecord = 'HUMAN_OBSERVATION' OR basisofrecord = 'MACHINE_OBSERVATION' OR basisofrecord = 'OCCURRENCE' OR basisofrecord = 'LIVING_SPECIMEN') AND NOT ARRAY_CONTAINS(issue, 'ZERO_COORDINATE') AND NOT ARRAY_CONTAINS(issue, 'COORDINATE_OUT_OF_RANGE') AND NOT ARRAY_CONTAINS(issue, 'COUNTRY_COORDINATE_MISMATCH') GROUP BY specieskey, countrycode"
 }

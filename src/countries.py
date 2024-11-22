@@ -18,6 +18,7 @@ def merge_rows(df):
     return df
 
 def get_countries():
+    print("Getting countries...")
     df = pd.read_csv(os.path.join('data', 'species with translations.csv'))
     df_countries = pd.read_csv(os.path.join('data', 'GBIF_output.csv'), sep='\t', keep_default_na=False, na_values=[''])
     df_countries = merge_rows(df_countries)
@@ -25,5 +26,3 @@ def get_countries():
     df = df.merge(df_countries, left_on='gbifID', right_on='specieskey', how='left')
     df.drop(columns=['specieskey'], inplace=True)
     df.to_csv(os.path.join('data', 'species with translations and countries.csv'), index=False)
-
-get_countries()
