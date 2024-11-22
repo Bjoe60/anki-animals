@@ -3,22 +3,23 @@ import os
 
 # Gets a list of mammals with scientific names and EOL IDs
 def get_species():
-    # Download full taxonomy from https://opendata.eol.org/dataset/tram-807-808-809-810-dh-v1-1/resource/00adb47b-57ed-4f6b-8f66-83bfdb5120e8
-    df = pd.read_csv(os.path.join('data', 'taxon.tab'), sep='\t', dtype={'eolID': object, 'taxonID': str, 'acceptedNameUsageID': str, 'parentNameUsageID': str, 'datasetID': str, 'Landmark': object, 'source': str, 'furtherInformationURL': str, 'scientificName': str, 'taxonRank': str, 'taxonomicStatus': str, 'canonicalName': str, 'authority': str, 'higherClassification': str})
-    df = df.dropna(subset=['higherClassification'])
-    df = df[df['higherClassification'].str.startswith('Life|Cellular Organisms|Eukaryota|Opisthokonta|Metazoa|Bilateria|Deuterostomia|Chordata|Vertebrata|Gnathostomata|Osteichthyes|Sarcopterygii|Tetrapoda|Amniota|Synapsida|Therapsida|Cynodontia|Mammalia')]
-    df = df[df['taxonRank'].values == 'species']
-    df = df.reindex(columns=['eolID', 'canonicalName', 'higherClassification'])
+	# Download full taxonomy from https://opendata.eol.org/dataset/tram-807-808-809-810-dh-v1-1/resource/00adb47b-57ed-4f6b-8f66-83bfdb5120e8
+	df = pd.read_csv(os.path.join('data', 'taxon.tab'), sep='\t', dtype={'eolID': object, 'taxonID': str, 'acceptedNameUsageID': str, 'parentNameUsageID': str, 'datasetID': str, 'Landmark': object, 'source': str, 'furtherInformationURL': str, 'scientificName': str, 'taxonRank': str, 'taxonomicStatus': str, 'canonicalName': str, 'authority': str, 'higherClassification': str})
+	df = df.dropna(subset=['higherClassification'])
+	df = df[df['higherClassification'].str.startswith('Life|Cellular Organisms|Eukaryota|Opisthokonta|Metazoa|Bilateria|Deuterostomia|Chordata|Vertebrata|Gnathostomata|Osteichthyes|Sarcopterygii|Tetrapoda|Amniota|Synapsida|Therapsida|Cynodontia|Mammalia')]
+	df = df[df['taxonRank'].values == 'species']
+	df = df.reindex(columns=['eolID', 'canonicalName', 'higherClassification'])
 
-    print(len(df))
+	print(len(df))
 
-    # Get iNaturalist IDs
-    df_inaturalist = pd.read_csv(os.path.join('data', 'full_provider_ids.csv'), dtype={'node_id': int, 'resource_pk': str, 'resource_id': int, 'page_id': object, 'preferred_canonical_for_page': str})
-    df_inaturalist = df_inaturalist[df_inaturalist['resource_id'] == 1177]
-    df = df.merge(df_inaturalist, left_on='eolID', right_on='page_id', how='left')
-    df = df.drop(columns=['node_id', 'resource_id', 'page_id', 'preferred_canonical_for_page'])
-    df = df.rename(columns={'resource_pk': 'inaturalistID'})
+	# Get iNaturalist IDs
+	df_inaturalist = pd.read_csv(os.path.join('data', 'full_provider_ids.csv'), dtype={'node_id': int, 'resource_pk': str, 'resource_id': int, 'page_id': object, 'preferred_canonical_for_page': str})
+	df_inaturalist = df_inaturalist[df_inaturalist['resource_id'] == 1177]
+	df = df.merge(df_inaturalist, left_on='eolID', right_on='page_id', how='left')
+	df.drop(columns=['node_id', 'resource_id', 'page_id', 'preferred_canonical_for_page'], inplace=True)
+	df.rename(columns={'resource_pk': 'inaturalistID'}, inplace=True)
+	df.dropna(subset=['inaturalistID'], inplace=True)
 
-    df.to_csv(os.path.join('data', 'species.csv'), index=False)
+	df.to_csv(os.path.join('data', 'species.csv'), index=False)
 
 get_species()
