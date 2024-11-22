@@ -76,18 +76,17 @@ def get_preferred_only(df_translations):
 
 # Merges multiple translations into a single cell
 def merge_translations(df_translations):
+    # Capitalize the first letter of each word
+    df_translations['vernacular_string'] = df_translations['vernacular_string'].fillna('').apply(capwords)
+    
     # Remove duplicates written in almost same way
     df_translations['vernacular_string_lower'] = df_translations['vernacular_string'].str.replace(' ', '').str.replace('-', '').str.replace("’", "'").str.lower().apply(unidecode)
     df_translations = df_translations.drop_duplicates(subset=['page_id', 'language_code', 'vernacular_string_lower'])
-    
+
     # Combine the rest of multiple translations into a single cell
     df_translations = df_translations.groupby(['page_id', 'language_code'], as_index=False).agg({
         'vernacular_string': ' / '.join
     })
-
-    # Capitalize the first letter of each word
-    df_translations['vernacular_string'] = df_translations['vernacular_string'].fillna('').apply(capwords)
-    
     return df_translations
 
 
@@ -104,10 +103,8 @@ def get_translations():
         df_translations_lang = get_preferred_only(df_translations_lang)
         df_translations_lang = merge_translations(df_translations_lang)
         
-        # Remove rows without English name
-        merge_method = 'inner' if language == 'English' else 'left'
         # Merge and rename the vernacular_string column to the language name
-        df = df.merge(df_translations_lang[['page_id', 'vernacular_string']], left_on='eolID', right_on='page_id', how=merge_method)
+        df = df.merge(df_translations_lang[['page_id', 'vernacular_string']], left_on='eolID', right_on='page_id', how='left')
         df.rename(columns={f'vernacular_string': language}, inplace=True)
         df.drop(columns=['page_id'], inplace=True)
         # print(f'{language}: {len(df[df[language].notnull()])} - {len(df_translations_lang)}')
