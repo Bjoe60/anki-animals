@@ -13,12 +13,19 @@ def get_species():
 	print(len(df))
 
 	# Get iNaturalist IDs
-	df_inaturalist = pd.read_csv(os.path.join('data', 'full_provider_ids.csv'), dtype={'node_id': int, 'resource_pk': str, 'resource_id': int, 'page_id': object, 'preferred_canonical_for_page': str})
-	df_inaturalist = df_inaturalist[df_inaturalist['resource_id'] == 1177]
+	df_ids = pd.read_csv(os.path.join('data', 'full_provider_ids.csv'), dtype={'node_id': int, 'resource_pk': str, 'resource_id': int, 'page_id': object, 'preferred_canonical_for_page': str})
+	df_inaturalist = df_ids[df_ids['resource_id'] == 1177]
 	df = df.merge(df_inaturalist, left_on='eolID', right_on='page_id', how='left')
 	df.drop(columns=['node_id', 'resource_id', 'page_id', 'preferred_canonical_for_page'], inplace=True)
 	df.rename(columns={'resource_pk': 'inaturalistID'}, inplace=True)
-	df.dropna(subset=['inaturalistID'], inplace=True)
+	# df.dropna(subset=['inaturalistID'], inplace=True)
+
+	# Get GBIF IDs
+	df_gbif = df_ids[df_ids['resource_id'] == 1178]
+	df = df.merge(df_gbif, left_on='eolID', right_on='page_id', how='left')
+	df.drop(columns=['node_id', 'resource_id', 'page_id', 'preferred_canonical_for_page'], inplace=True)
+	df.rename(columns={'resource_pk': 'gbifID'}, inplace=True)
+	# df.dropna(subset=['gbifID'], inplace=True)
 
 	df.to_csv(os.path.join('data', 'species.csv'), index=False)
 

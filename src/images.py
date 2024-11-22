@@ -48,7 +48,7 @@ def process_results_to_dataframe(results, original_df):
 
 
 def get_images():
-    df = pd.read_csv(os.path.join('data', 'species with translations.csv'))
+    df = pd.read_csv(os.path.join('data', 'species with translations and countries.csv'))
     df.reindex(columns=['eolID', 'canonicalName', 'higherClassification', 'inaturalistID', 'language_code', 'vernacular_string', 'images', 'extinct', 'observations_count', 'wikipedia_url', 'wikipedia_summary'])
 
     # Get list of ids from iNaturalist in integer format
@@ -64,6 +64,6 @@ def get_images():
     results_df = process_results_to_dataframe(all_results, df)
     df_images = df.merge(results_df, on='inaturalistID', how='left', suffixes=('', '_new'))
 
-    df_images.to_csv(os.path.join('data', 'species with translations and images.csv'), index=False)
+    df_images.to_csv(os.path.join('data', 'species with translations, countries and images.csv'), index=False)
 
 get_images()
