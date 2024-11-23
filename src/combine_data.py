@@ -17,7 +17,7 @@ def combine_data():
     print("Combining data...")
     df_translations = pd.read_csv(os.path.join('data', 'species with translations.csv'))
     df_countries = pd.read_csv(os.path.join('data', 'species with countries.csv'))
-    df_images = pd.read_csv(os.path.join('data', 'species with images.csv'))
+    df_images = pd.read_csv(os.path.join('data', 'species with images.csv'), dtype={'observations_count': 'Int64'})
 
     df_merged = reduce(lambda left,right: pd.merge(left,right, on=['eolID', 'canonicalName', 'higherClassification', 'inaturalistID', 'gbifID'], how='left'), [df_translations, df_countries, df_images])
     

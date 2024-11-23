@@ -23,6 +23,9 @@ def process_results_to_dataframe(results, original_df):
     """Process iNaturalist API results into a structured dictionary for DataFrame updates."""
     records = []
     for result in results:
+        if result['extinct'] == True:
+            print(f"Skipping extinct species: {result['id'], result['preferred_common_name']}")
+            continue
         images_html = ';;'.join(
             f'<img src="{photo["photo"]["large_url"]}">|{photo["photo"]["attribution"]}|{photo["photo"]["license_code"]}'
             for photo in result['taxon_photos']
@@ -38,7 +41,7 @@ def process_results_to_dataframe(results, original_df):
             'preferred_common_name': result.get('preferred_common_name', '')
         })
     results_df = pd.DataFrame(records)
-    
+
     return results_df
 
 def get_images():
