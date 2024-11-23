@@ -1,4 +1,7 @@
-data/
+data/*
+
+!data/GBIF_output.csv
+!data/animals.csv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
