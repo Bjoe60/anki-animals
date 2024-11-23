@@ -2,6 +2,7 @@ import pandas as pd
 import os
 import requests
 from ratelimit import limits, sleep_and_retry
+import re
 
 INAT_QUERY_URL = 'https://api.inaturalist.org/v2/taxa/%s?fields=(preferred_common_name:!t,extinct:!t,observations_count:!t,wikipedia_url:!t,wikipedia_summary:!t,taxon_photos:(photo:(attribution:!t,license_code:!t,large_url:!t)))'
 
@@ -26,11 +27,15 @@ def process_results_to_dataframe(results, original_df):
         if result['extinct'] == True:
             print(f"Skipping extinct species: {result['id'], result['preferred_common_name']}")
             continue
-        images_html = ';;'.join(
-            f'<img src="{photo["photo"]["large_url"]}">|{photo["photo"]["attribution"]}|{photo["photo"]["license_code"]}'
-            for photo in result['taxon_photos']
-        )
-        images_html = images_html.replace("'", '`') # Avoid issues in Anki
+        image_html_list = []
+        for photo in result['taxon_photos']:
+            # Only include images without all rights reserved
+            if photo["photo"]["license_code"]:
+                attribution = re.match(r'.*\(c\) (.+), some rights reserved.*', photo['photo']['attribution'])
+                attribution = f'{attribution.group(1)}' if attribution else ''
+                image_html_list.append(f'<img src="{photo["photo"]["large_url"]}">|{attribution}|{photo["photo"]["license_code"]}')
+        images_html = ';;'.join(image_html_list)
+        images_html = images_html.replace("'", '&#39;') # Avoid issues in Anki
         records.append({
             'inaturalistID': result['id'],
             'images': images_html,
