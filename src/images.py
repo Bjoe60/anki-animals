@@ -4,7 +4,7 @@ import requests
 from ratelimit import limits, sleep_and_retry
 import re
 
-INAT_QUERY_URL = 'https://api.inaturalist.org/v2/taxa/%s?fields=(preferred_common_name:!t,extinct:!t,observations_count:!t,wikipedia_url:!t,wikipedia_summary:!t,taxon_photos:(photo:(attribution:!t,license_code:!t,large_url:!t)))'
+INAT_QUERY_URL = 'https://api.inaturalist.org/v2/taxa/%s?fields=(preferred_common_name:!t,extinct:!t,observations_count:!t,wikipedia_summary:!t,taxon_photos:(photo:(attribution:!t,license_code:!t,large_url:!t)))'
 
 # Maximum 60 requests per minute
 @sleep_and_retry
@@ -41,7 +41,6 @@ def process_results_to_dataframe(results, original_df):
             'images': images_html,
             'extinct': result['extinct'],
             'observations_count': result['observations_count'],
-            'wikipedia_url': result.get('wikipedia_url'),
             'wikipedia_summary': result.get('wikipedia_summary'),
             'preferred_common_name': result.get('preferred_common_name', '')
         })

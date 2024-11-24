@@ -12,6 +12,9 @@ def merge_rows(df):
     df.loc[:, 'countrycode'] = 'OBS::' + df['countrycode']
     df = df.rename(columns={'countrycode': 'country'})
 
+    # Keep only countries with more than 5 observations (since 2015)
+    df = df[df['observation_count'] >= 5]
+
     # Concat the countries into a single row
     df = df.groupby('specieskey')['country'].apply(lambda x: ' '.join(x)).reset_index()
     
@@ -20,7 +23,10 @@ def merge_rows(df):
 def get_countries():
     print("Getting countries...")
     df = pd.read_csv(os.path.join('data', 'species.csv'))
-    df_countries = pd.read_csv(os.path.join('data', 'GBIF_output.csv'), sep='\t', keep_default_na=False, na_values=[''])
+    df_countries = pd.read_csv(os.path.join('data', 'GBIF_output.csv'), sep='\t', keep_default_na=False, na_values=[''], dtype={'specieskey': int, 'observation_count': int})
+    print(df_countries[df_countries['specieskey'] == 2433376])
+    exit()
+
     df_countries = merge_rows(df_countries)
 
     df = df.merge(df_countries, left_on='gbifID', right_on='specieskey', how='left')
