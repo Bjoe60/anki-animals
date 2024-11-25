@@ -1,6 +1,7 @@
 import pandas as pd
 import os
 from functools import reduce
+from string import capwords
 
 UNWANTED_IMGS = {'<img src="https://inaturalist-open-data.s3.amazonaws.com/photos/50636587/large.jpg">'}
 
@@ -29,10 +30,12 @@ def combine_data():
     
     # Prefer the English names from iNaturalist
     df_merged['English'] = df_merged['preferred_common_name'].combine_first(df_merged['English'])
+    df_merged['English'] = df_merged['English'].fillna('').apply(capwords)
     df_merged.drop(columns=['preferred_common_name'], inplace=True)
 
     # Create tags
     df_merged['higherClassification'] = df_merged['higherClassification'].str.replace('Life|Cellular Organisms|Eukaryota|Opisthokonta|Metazoa|Bilateria|Deuterostomia|Chordata|Vertebrata|Gnathostomata|Osteichthyes|Sarcopterygii|Tetrapoda|Amniota|Synapsida|Therapsida|Cynodontia|', '').str.replace('|', '::').str.replace(' ', '-')
+    df_merged['country'] = df_merged['country'].fillna('')
     df_merged['higherClassification'] = df_merged['country'] + ' ' + df_merged['higherClassification']
 
     # Create strings to sort by in Anki

@@ -24,9 +24,7 @@ def get_countries():
     print("Getting countries...")
     df = pd.read_csv(os.path.join('data', 'species.csv'))
     df_countries = pd.read_csv(os.path.join('data', 'GBIF_output.csv'), sep='\t', keep_default_na=False, na_values=[''], dtype={'specieskey': int, 'observation_count': int})
-    print(df_countries[df_countries['specieskey'] == 2433376])
-    exit()
-
+    
     df_countries = merge_rows(df_countries)
 
     df = df.merge(df_countries, left_on='gbifID', right_on='specieskey', how='left')

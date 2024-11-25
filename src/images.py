@@ -25,7 +25,6 @@ def process_results_to_dataframe(results, original_df):
     records = []
     for result in results:
         if result['extinct'] == True:
-            print(f"Skipping extinct species: {result['id'], result['preferred_common_name']}")
             continue
         image_html_list = []
         for photo in result['taxon_photos']:
@@ -59,6 +58,8 @@ def get_images():
     batch_size = 30
     all_results = []
     for i in range(0, len(ids), batch_size):
+        if i % (batch_size * 60) == 0:
+            print(f"Processing {i} of {len(ids)}")
         batch_ids = ','.join(map(str, ids[i:i + batch_size]))
         all_results.extend(fetch_inaturalist_data(batch_ids))
 
