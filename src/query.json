@@ -1,0 +1,8 @@
+{
+  "sendNotification": true,
+  "notificationAddresses": [
+    "bjorn60@gmail.com" 
+  ],
+  "format": "SQL_TSV_ZIP", 
+  "sql": "SELECT specieskey, countrycode, COUNT(*) AS observation_count FROM occurrence WHERE specieskey IS NOT NULL AND countrycode IS NOT NULL AND occurrencestatus = 'PRESENT' AND \"year\" >= 2015 AND (basisofrecord = 'HUMAN_OBSERVATION' OR basisofrecord = 'MACHINE_OBSERVATION' OR basisofrecord = 'OCCURRENCE' OR basisofrecord = 'LIVING_SPECIMEN') GROUP BY specieskey, countrycode"
+}
