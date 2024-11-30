@@ -17,8 +17,11 @@ def prepare_terms_dict(df_terms):
     return pd.Series(df_terms['name'].str.capitalize().values, index=df_terms['uri']).to_dict()
 
 def get_traits():
-    df = pd.read_csv(os.path.join('data', 'species with translations.csv'))
-    df_traits = pd.read_csv(os.path.join('data', 'trait_bank', 'traits.csv'), dtype={'eol_pk': str, 'page_id': int, 'resource_pk': str, 'resource_id': object, 'source': str, 'scientific_name': str, 'predicate': str, 'object_page_id': object, 'value_uri': str, 'normal_measurement': float, 'normal_units_uri': str, 'normal_units': str, 'measurement': float, 'units_uri': str, 'units': str, 'literal': str, 'method': str, 'remarks': str, 'sample_size': object, 'name_en': str, 'citation': str})
+    print("Getting traits...")
+    df = pd.read_csv(os.path.join('data', 'species.csv'))
+    df_traits = pd.read_csv(os.path.join('data', 'trait_bank', 'traits.csv'), dtype={'eol_pk': str, 'page_id': int, 'resource_pk': str, 'resource_id': object, 'source': str, 'scientific_name': str, 'predicate': str, 'object_page_id': object, 'value_uri': str, 'normal_measurement': object, 'normal_units_uri': str, 'normal_units': str, 'measurement': object, 'units_uri': str, 'units': str, 'literal': str, 'method': str, 'remarks': str, 'sample_size': object, 'name_en': str, 'citation': str})
+    print(len(df_traits))
+
     df_terms = pd.read_csv(os.path.join('data', 'trait_bank', 'terms.csv'), dtype=str)
 
     print("Preprocessing...")
@@ -38,15 +41,6 @@ def get_traits():
             value_uri = traits_dict.get((row['eolID'], term_uri))
             if value_uri:
                 df.at[idx, term_name] = terms_dict.get(value_uri)
-
+    
     # Save the modified DataFrame
     df.to_csv(os.path.join('data', 'species with traits.csv'), index=False)
-    print("----- Traits done -----")
-
-def get_species_traits():
-    eolID = 326384
-    df_traits = pd.read_csv(os.path.join('data', 'trait_bank', 'traits.csv'), dtype={'eol_pk': str, 'page_id': int, 'resource_pk': str, 'resource_id': object, 'source': str, 'scientific_name': str, 'predicate': str, 'object_page_id': object, 'value_uri': str, 'normal_measurement': float, 'normal_units_uri': str, 'normal_units': str, 'measurement': float, 'units_uri': str, 'units': str, 'literal': str, 'method': str, 'remarks': str, 'sample_size': object, 'name_en': str, 'citation': str})
-    df_species_traits = df_traits[df_traits['page_id'] == eolID]
-    df_species_traits.to_csv(os.path.join('data', 'species_traits.csv'), index=False)
-
-get_species_traits()
