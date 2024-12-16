@@ -11,7 +11,7 @@ def create_sort_string(df, name):
 def create_csv(df):
     with open(os.path.join('data', 'animals.csv'), 'w', encoding='utf-8', newline='') as f:
         # File header for Anki
-        f.write('#separator:Comma\n#html:true\n#notetype:Species\n#deck:Animals\n#tags column:3\n#columns:EOL ID,Scientific,Tags,iNaturalist ID,GBIF ID,English,Afrikaans,Albanian,Arabic,Armenian,Azerbaijani,Belarusian,Bengali,Bulgarian,Catalan,Chinese,Croatian,Czech,Danish,Dutch,Estonian,Finnish,French,Galician,Georgian,German,Greek,Hebrew,Hungarian,Icelandic,Indonesian,Italian,Japanese,Kazakh,Korean,Latvian,Lithuanian,Macedonian,Malay,Maltese,Mongolian,Nepali,Norwegian,Persian,Polish,Portuguese,Romanian,Russian,Serbian,Slovak,Slovenian,Spanish,Swahili,Swedish,Thai,Turkish,Ukrainian,Uzbek,Vietnamese,Countries,Images,extinct,Observations,Summary,Taxonomic sort,Observations sort\n')
+        f.write('#separator:Comma\n#html:true\n#notetype:Species\n#deck:Animals\n#tags column:3\n#columns:EOL ID,Scientific,Tags,iNaturalist ID,GBIF ID,English,Afrikaans,Albanian,Arabic,Armenian,Azerbaijani,Belarusian,Bengali,Bulgarian,Catalan,Chinese,Croatian,Czech,Danish,Dutch,Estonian,Finnish,French,Galician,Georgian,German,Greek,Hebrew,Hungarian,Icelandic,Indonesian,Italian,Japanese,Kazakh,Korean,Latvian,Lithuanian,Macedonian,Malay,Maltese,Mongolian,Nepali,Norwegian,Persian,Polish,Portuguese,Romanian,Russian,Serbian,Slovak,Slovenian,Spanish,Swahili,Swedish,Thai,Turkish,Ukrainian,Uzbek,Vietnamese,Countries,Images,Conservation Status,Observations,Summary,Taxonomic sort,Observations sort\n')
         
         df.to_csv(f, index=False)
 
