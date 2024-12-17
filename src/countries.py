@@ -12,7 +12,7 @@ def merge_rows(df):
     df.loc[:, 'countrycode'] = 'OBS::' + df['countrycode']
     df = df.rename(columns={'countrycode': 'country'})
 
-    # Keep only countries with more than 5 observations (since 2015)
+    # Keep only countries with more than 5 observations (since 2000)
     df = df[df['observation_count'] >= 5]
 
     # Concat the countries into a single row
