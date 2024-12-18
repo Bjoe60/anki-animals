@@ -3,7 +3,7 @@ import os
 from functools import reduce
 from string import capwords
 
-UNWANTED_IMGS = {'<img src="https://inaturalist-open-data.s3.amazonaws.com/photos/50636587/large.jpg">'}
+UNWANTED_IMGS = {'<img src="https://inaturalist-open-data.s3.amazonaws.com/photos/50636587/large.jpg">', '<img src="https://www.inaturalist.org/assets/copyright-infringement-large.png">'}
 
 # Create sortable string of numbers with leading zeros using current order
 def create_sort_string(df, name):
@@ -12,7 +12,7 @@ def create_sort_string(df, name):
 def create_csv(df):
     with open(os.path.join('data', 'animals.csv'), 'w', encoding='utf-8', newline='') as f:
         # File header for Anki
-        f.write('#separator:Comma\n#html:true\n#notetype:Species\n#deck:Animals\n#tags column:3\n#columns:EOL ID,Scientific,Tags,iNaturalist ID,GBIF ID,English,Afrikaans,Albanian,Arabic,Armenian,Azerbaijani,Belarusian,Bengali,Bulgarian,Catalan,Chinese,Croatian,Czech,Danish,Dutch,Estonian,Finnish,French,Galician,Georgian,German,Greek,Hebrew,Hungarian,Icelandic,Indonesian,Italian,Japanese,Kazakh,Korean,Latvian,Lithuanian,Macedonian,Malay,Maltese,Mongolian,Nepali,Norwegian,Persian,Polish,Portuguese,Romanian,Russian,Serbian,Slovak,Slovenian,Spanish,Swahili,Swedish,Thai,Turkish,Ukrainian,Uzbek,Vietnamese,Countries,Images,Conservation status,Observations,Summary,Taxonomic sort,Observations sort\n')
+        f.write('#separator:Comma\n#html:true\n#notetype:Species\n#deck:Animals\n#tags column:64\n#columns:EOL ID,Scientific,iNaturalist ID,GBIF ID,English,Afrikaans,Albanian,Arabic,Armenian,Azerbaijani,Belarusian,Bengali,Bulgarian,Catalan,Chinese,Croatian,Czech,Danish,Dutch,Estonian,Finnish,French,Galician,Georgian,German,Greek,Hebrew,Hungarian,Icelandic,Indonesian,Italian,Japanese,Kazakh,Korean,Latvian,Lithuanian,Macedonian,Malay,Maltese,Mongolian,Nepali,Norwegian,Persian,Polish,Portuguese,Romanian,Russian,Serbian,Slovak,Slovenian,Spanish,Swahili,Swedish,Thai,Turkish,Ukrainian,Uzbek,Vietnamese,Countries,Images,Conservation status,Observations,Summary,Tags,Taxonomic sort,Observations sort\n')
         
         df.to_csv(f, index=False)
 
@@ -27,7 +27,7 @@ def combine_data():
 
     remove_unwanted_imgs(df_images)
 
-    df_merged = reduce(lambda left,right: pd.merge(left,right, on=['eolID', 'canonicalName', 'higherClassification', 'inaturalistID', 'gbifID'], how='left'), [df_translations, df_countries, df_images])
+    df_merged = reduce(lambda left,right: pd.merge(left,right, on=['eolID', 'canonicalName', 'inaturalistID', 'gbifID'], how='left'), [df_translations, df_countries, df_images])
     
     # Prefer the English names from iNaturalist
     df_merged['English'] = df_merged['preferred_common_name'].combine_first(df_merged['English'])
@@ -35,9 +35,8 @@ def combine_data():
     df_merged.drop(columns=['preferred_common_name'], inplace=True)
 
     # Create tags
-    df_merged['higherClassification'] = df_merged['higherClassification'].str.replace('Life|Cellular Organisms|Eukaryota|Opisthokonta|Metazoa|Bilateria|Deuterostomia|Chordata|Vertebrata|Gnathostomata|Osteichthyes|Sarcopterygii|Tetrapoda|Amniota|Synapsida|Therapsida|Cynodontia|', '').str.replace('|', '::').str.replace(' ', '-')
     df_merged['country'] = df_merged['country'].fillna('')
-    df_merged['higherClassification'] = df_merged['country'] + ' ' + df_merged['higherClassification']
+    df_merged['taxonomy_tag'] = df_merged['country'] + ' ' + df_merged['taxonomy_tag']
 
     # Create strings to sort by in Anki
     create_sort_string(df_merged, 'taxonomic_sort')

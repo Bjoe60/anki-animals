@@ -95,7 +95,7 @@ def merge_translations(df_translations):
 # Gets the English translations for the species
 def get_translations():
     print("Getting translations...")
-    df = pd.read_csv(os.path.join('data', 'species.csv'), dtype={'eolID': int, 'canonicalName': str, 'higherClassification': str, 'inaturalistID': object, 'gbifID': object})
+    df = pd.read_csv(os.path.join('data', 'species.csv'), dtype={'eolID': int, 'canonicalName': str, 'inaturalistID': object, 'gbifID': object})
     df_translations = pd.read_csv(os.path.join('data', 'vernacularnames.csv'), dtype={'page_id': int, 'canonical_form': str, 'vernacular_string': str, 'language_code': str, 'resource_name': str, 'is_preferred_by_resource': str, 'is_preferred_by_eol': str})
 
     # print(df_translations[df_translations['vernacular_string'] == 'Πλατύποδας']['language_code'])
