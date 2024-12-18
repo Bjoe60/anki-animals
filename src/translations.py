@@ -95,10 +95,8 @@ def merge_translations(df_translations):
 # Gets the English translations for the species
 def get_translations():
     print("Getting translations...")
-    df = pd.read_csv(os.path.join('data', 'species.csv'), dtype={'eolID': int, 'canonicalName': str, 'inaturalistID': object, 'gbifID': object})
+    df = pd.read_csv(os.path.join('data', 'species.csv'), usecols=['eolID'])
     df_translations = pd.read_csv(os.path.join('data', 'vernacularnames.csv'), dtype={'page_id': int, 'canonical_form': str, 'vernacular_string': str, 'language_code': str, 'resource_name': str, 'is_preferred_by_resource': str, 'is_preferred_by_eol': str})
-
-    # print(df_translations[df_translations['vernacular_string'] == 'Πλατύποδας']['language_code'])
 
     # Fill out translations for additional languages
     for language, codes in LANGUAGES:
@@ -110,7 +108,6 @@ def get_translations():
         df = df.merge(df_translations_lang[['page_id', 'vernacular_string']], left_on='eolID', right_on='page_id', how='left')
         df.rename(columns={f'vernacular_string': language}, inplace=True)
         df.drop(columns=['page_id'], inplace=True)
-        # print(f'{language}: {len(df[df[language].notnull()])} - {len(df_translations_lang)}')
 
     # Save the updated DataFrame to a file
     df.to_csv(os.path.join('data', 'species with translations.csv'), index=False)

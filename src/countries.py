@@ -20,16 +20,18 @@ def merge_rows(df):
 
     # Concat the countries into a single row
     df = df.groupby('specieskey')['country'].apply(lambda x: ' '.join(x)).reset_index()
+    df = df.rename(columns={'country': 'countries'})
+
     
     return df
 
 def get_countries():
     print("Getting countries...")
-    df = pd.read_csv(os.path.join('data', 'species.csv'))
-    df_countries = pd.read_csv(os.path.join('data', 'GBIF_output.csv'), sep='\t', keep_default_na=False, na_values=[''], dtype={'specieskey': int, 'observation_count': int})
+    df = pd.read_csv(os.path.join('data', 'species.csv'), usecols=['eolID', 'gbifID'])
+    df_countries = pd.read_csv(os.path.join('data', 'GBIF_output.csv'), sep='\t', keep_default_na=False, na_values=[''], dtype={'specieskey': int, 'countrycode': str, 'observation_count': int})
     
     df_countries = merge_rows(df_countries)
 
     df = df.merge(df_countries, left_on='gbifID', right_on='specieskey', how='left')
-    df.drop(columns=['specieskey'], inplace=True)
+    df.drop(columns=['specieskey', 'gbifID'], inplace=True)
     df.to_csv(os.path.join('data', 'species with countries.csv'), index=False)

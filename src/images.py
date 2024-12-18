@@ -4,7 +4,7 @@ import requests
 from ratelimit import limits, sleep_and_retry
 import re
 
-SAMPLE_TEST = False
+SAMPLE_TEST = True
 INAT_QUERY_URL = 'https://api.inaturalist.org/v2/taxa/%s?fields=(preferred_common_name:!t,conservation_statuses:(place:!t,status:!t),extinct:!t,observations_count:!t,wikipedia_summary:!t,ancestors:(rank:!t,preferred_common_name:!t),taxon_photos:(photo:(attribution:!t,license_code:!t,large_url:!t)))'
 CONSERVATION_STATUSES = {'LC': 'Least Concern', 'NT': 'Near Threatened', 'VU': 'Vulnerable', 'EN': 'Endangered', 'CR': 'Critically Endangered', 'EW': 'Extinct in the Wild', 'EX': 'Extinct', 'DD': 'Data Deficient', 'NE': 'Not Evaluated', 'CD': 'Conservation Dependent'}
 WANTED_RANKS = {'kingdom', 'class', 'order', 'family', 'genus'}
@@ -80,7 +80,7 @@ def process_results_to_dataframe(results, original_df):
 
 def get_images():
     print("Getting images...")
-    df = pd.read_csv(os.path.join('data', 'species.csv'), dtype={'inaturalistID': int, 'gbifID': int})
+    df = pd.read_csv(os.path.join('data', 'species.csv'), usecols=['eolID', 'inaturalistID'], dtype={'inaturalistID': int, 'gbifID': int})
 
     # Get list of ids from iNaturalist in integer format
     ids = df['inaturalistID'].unique()
@@ -100,5 +100,9 @@ def get_images():
     # Convert observations_count to object to allow NaNs
     results_df['observations_count'] = results_df['observations_count'].astype('Int64')
     df_images = df.merge(results_df, on='inaturalistID', how='left', suffixes=('', '_new'))
+    df_images.drop(columns=['inaturalistID'], inplace=True)
 
-    df_images.to_csv(os.path.join('data', 'species with images.csv'), index=False)
+    if SAMPLE_TEST:
+        df_images.to_csv(os.path.join('data', 'species with images1.csv'), index=False)
+    else:
+        df_images.to_csv(os.path.join('data', 'species with images.csv'), index=False)
