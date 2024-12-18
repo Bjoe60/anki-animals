@@ -4,8 +4,8 @@ import requests
 from ratelimit import limits, sleep_and_retry
 import re
 
-SAMPLE_TEST = True
-INAT_QUERY_URL = 'https://api.inaturalist.org/v2/taxa/%s?fields=(preferred_common_name:!t,conservation_statuses:(place:!t,status:!t),extinct:!t,observations_count:!t,wikipedia_summary:!t,ancestors:(rank:!t,preferred_common_name:!t),taxon_photos:(photo:(attribution:!t,license_code:!t,large_url:!t)))'
+SAMPLE_TEST = False
+INAT_QUERY_URL = 'https://api.inaturalist.org/v2/taxa/%s?fields=(preferred_common_name:!t,conservation_statuses:(place:!t,status:!t),extinct:!t,observations_count:!t,wikipedia_summary:!t,ancestors:(rank:!t,preferred_common_name:!t,name:!t),taxon_photos:(photo:(attribution:!t,license_code:!t,large_url:!t)))'
 CONSERVATION_STATUSES = {'LC': 'Least Concern', 'NT': 'Near Threatened', 'VU': 'Vulnerable', 'EN': 'Endangered', 'CR': 'Critically Endangered', 'EW': 'Extinct in the Wild', 'EX': 'Extinct', 'DD': 'Data Deficient', 'NE': 'Not Evaluated', 'CD': 'Conservation Dependent'}
 WANTED_RANKS = {'kingdom', 'class', 'order', 'family', 'genus'}
 
@@ -40,7 +40,7 @@ def generate_images_html(photos):
 def generate_taxonomy(ancestors):
     taxonomy = []
     for ancestor in ancestors:
-        if ancestor.get('rank') in WANTED_RANKS and ancestor.get('preferred_common_name'):
+        if ancestor.get('rank') in WANTED_RANKS and ancestor.get('preferred_common_name', ancestor.get('name')):
             taxonomy.append(ancestor["preferred_common_name"])
     
     return '::'.join(taxonomy).replace(' ', '-')
