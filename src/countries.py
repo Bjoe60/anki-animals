@@ -12,8 +12,11 @@ def merge_rows(df):
     df.loc[:, 'countrycode'] = 'OBS::' + df['countrycode']
     df = df.rename(columns={'countrycode': 'country'})
 
-    # Keep only countries with more than 5 observations (since 2000)
-    df = df[df['observation_count'] >= 5]
+    # Group by species and calculate total observations
+    df['total_observations'] = df.groupby('specieskey')['observation_count'].transform('sum')
+
+    # Keep only countries with at least 5 observations (since 2000) or if the species is rare globally
+    df = df[(df['observation_count'] >= 5) | (df['total_observations'] <= 300)]
 
     # Concat the countries into a single row
     df = df.groupby('specieskey')['country'].apply(lambda x: ' '.join(x)).reset_index()
