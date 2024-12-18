@@ -40,8 +40,9 @@ def generate_images_html(photos):
 def generate_taxonomy(ancestors):
     taxonomy = []
     for ancestor in ancestors:
-        if ancestor.get('rank') in WANTED_RANKS and ancestor.get('preferred_common_name', ancestor.get('name')):
-            taxonomy.append(ancestor["preferred_common_name"])
+        if ancestor.get('rank') in WANTED_RANKS:
+            # Use scientific name if common name is not available
+            taxonomy.append(ancestor.get('preferred_common_name', ancestor.get('name')))
     
     return '::'.join(taxonomy).replace(' ', '-')
 
@@ -99,7 +100,7 @@ def get_images():
     results_df = process_results_to_dataframe(all_results, df)
     # Convert observations_count to object to allow NaNs
     results_df['observations_count'] = results_df['observations_count'].astype('Int64')
-    df_images = df.merge(results_df, on='inaturalistID', how='left', suffixes=('', '_new'))
+    df_images = df.merge(results_df, on='inaturalistID', how='inner', suffixes=('', '_new'))
     df_images.drop(columns=['inaturalistID'], inplace=True)
 
     if SAMPLE_TEST:
