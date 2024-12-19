@@ -5,7 +5,7 @@ from ratelimit import limits, sleep_and_retry
 import re
 
 SAMPLE_TEST = False
-INAT_QUERY_URL = 'https://api.inaturalist.org/v2/taxa/%s?fields=(preferred_common_name:!t,conservation_statuses:(place:!t,status:!t),extinct:!t,observations_count:!t,wikipedia_summary:!t,ancestors:(rank:!t,preferred_common_name:!t,name:!t),taxon_photos:(photo:(attribution:!t,license_code:!t,large_url:!t)))'
+INAT_QUERY_URL = 'https://api.inaturalist.org/v2/taxa/%s?fields=(preferred_common_name:!t,conservation_statuses:(place:!t,status:!t),extinct:!t,observations_count:!t,ancestors:(rank:!t,preferred_common_name:!t,name:!t),taxon_photos:(photo:(attribution:!t,license_code:!t,large_url:!t)))'
 CONSERVATION_STATUSES = {'LC': 'Least Concern', 'NT': 'Near Threatened', 'VU': 'Vulnerable', 'EN': 'Endangered', 'CR': 'Critically Endangered', 'EW': 'Extinct in the Wild', 'EX': 'Extinct', 'DD': 'Data Deficient', 'NE': 'Not Evaluated', 'CD': 'Conservation Dependent'}
 WANTED_RANKS = {'kingdom', 'class', 'order', 'family', 'genus'}
 
@@ -70,7 +70,6 @@ def process_results_to_dataframe(results, original_df):
             'images': images_html,
             'conservation_status': conservation_status,
             'observations_count': result.get('observations_count'),
-            'wikipedia_summary': result.get('wikipedia_summary'),
             'preferred_common_name': result.get('preferred_common_name', ''),
             'taxonomy_tag': taxonomy_tag
         })
