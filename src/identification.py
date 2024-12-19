@@ -37,15 +37,17 @@ def extract_section(html):
 
     # Iterate through siblings of the h2 tag until another h2 or h3 is found
     for sibling in description_header.parent.find_next_siblings():
-        if sibling.find('img'): # Skip images
-            continue
-        
-        # Stop at the next header or when text is long enough
-        if sibling.find(['h2', 'h3']) and descriptions or is_longer_than(descriptions, 2200):
-            break
-        
-        without_refs = remove_refs(sibling)
-        descriptions.append(without_refs)
+        # Skip unwanted tags
+        for tag in ['img', 'video', 'audio', 'table']:
+            if sibling.find(tag):
+                break
+        else:
+            # Stop at the next header or when text is long enough
+            if sibling.name in ['h2', 'h3'] or sibling.find(['h2', 'h3']) and descriptions or is_longer_than(descriptions, 2200):
+                break
+            
+            without_refs = remove_refs(sibling)
+            descriptions.append(without_refs)
 
     return "".join(descriptions)
 
