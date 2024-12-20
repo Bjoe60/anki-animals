@@ -32,10 +32,11 @@ def get_species():
 		df.rename(columns={'resource_pk': id_column}, inplace=True)
 		return df
 
-	# Get iNaturalist and GBIF IDs
+	# Get IDs to different resources
 	df = merge_provider_ids(df, 1177, 'inaturalistID', 'inner')
 	df = merge_provider_ids(df, 1178, 'gbifID', 'inner')
-	df = merge_provider_ids(df, 617, 'WikipediaID', 'left')
+	df = merge_provider_ids(df, 617, 'wikipediaID', 'left')
+	df = merge_provider_ids(df, 775, 'arkiveID', 'left')
 
 	print(len(df), 'species with IDs')
 
