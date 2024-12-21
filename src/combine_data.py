@@ -35,7 +35,7 @@ def combine_data():
     remove_unwanted_imgs(df)
 
     # Prefer the English names from iNaturalist
-    df['English'] = df['English'].combine_first(df['preferred_common_name'])
+    df['English'] = df['preferred_common_name'].combine_first(df['English'])
     df['English'] = df['English'].fillna('').apply(capwords)
 
     # Remove empty cards
