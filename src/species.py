@@ -37,6 +37,7 @@ def get_species():
 	df = merge_provider_ids(df, 1178, 'gbifID', 'inner')
 	df = merge_provider_ids(df, 617, 'wikipediaID', 'left')
 	df = merge_provider_ids(df, 775, 'arkiveID', 'left')
+	df = merge_provider_ids(df, 560, 'adwID', 'left')
 
 	print(len(df), 'species with IDs')
 
