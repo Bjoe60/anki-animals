@@ -25,6 +25,7 @@ def get_species():
 	# Add an ID column to the dataframe
 	def merge_provider_ids(df, resource_id, id_column, how='left'):
 		df_provider = df_ids[df_ids['resource_id'] == resource_id]
+		df_provider = df_provider.drop_duplicates(subset=['page_id'], keep='last')
 		df = df.merge(df_provider, left_on='eolID', right_on='page_id', how=how)
 		df.drop(columns=['resource_id', 'page_id'], inplace=True)
 		df.rename(columns={'resource_pk': id_column}, inplace=True)
