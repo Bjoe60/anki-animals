@@ -4,14 +4,13 @@ import requests
 from ratelimit import limits, sleep_and_retry
 import re
 
-SAMPLE_TEST = False
 INAT_QUERY_URL = 'https://api.inaturalist.org/v2/taxa/%s?fields=(preferred_common_name:!t,conservation_statuses:(place:!t,status:!t),extinct:!t,observations_count:!t,ancestors:(rank:!t,preferred_common_name:!t,name:!t),taxon_photos:(photo:(attribution:!t,license_code:!t,large_url:!t)))'
 CONSERVATION_STATUSES = {'LC': 'Least Concern', 'NT': 'Near Threatened', 'VU': 'Vulnerable', 'EN': 'Endangered', 'CR': 'Critically Endangered', 'EW': 'Extinct in the Wild', 'EX': 'Extinct', 'DD': 'Data Deficient', 'NE': 'Not Evaluated', 'CD': 'Conservation Dependent'}
-WANTED_RANKS = {'kingdom', 'class', 'order', 'family', 'genus'}
+WANTED_RANKS = {'kingdom', 'class', 'order', 'family'}
 
-# Maximum 60 requests per minute
+# Maximum 30 requests per minute
 @sleep_and_retry
-@limits(calls=60, period=60)
+@limits(calls=30, period=60)
 def fetch_inaturalist_data(ids):
     query = INAT_QUERY_URL % ids
     response = requests.get(query)
@@ -84,14 +83,12 @@ def get_images():
 
     # Get list of ids from iNaturalist in integer format
     ids = df['inaturalistID'].unique()
-    if SAMPLE_TEST:
-        ids = ids[:30]
 
     # Extract the first 30 ids and make them into a string
     batch_size = 30
     all_results = []
     for i in range(0, len(ids), batch_size):
-        if i % (batch_size * 60) == 0 or True:
+        if i % (batch_size * 10) == 0:
             print(f"Processing {i+1} of {len(ids)}")
         batch_ids = ','.join(map(str, ids[i:i + batch_size]))
         all_results.extend(fetch_inaturalist_data(batch_ids))
@@ -102,7 +99,4 @@ def get_images():
     df_images = df.merge(results_df, on='inaturalistID', how='inner', suffixes=('', '_new'))
     df_images.drop(columns=['inaturalistID'], inplace=True)
 
-    if SAMPLE_TEST:
-        df_images.to_csv(os.path.join('data', 'species with images1.csv'), index=False)
-    else:
-        df_images.to_csv(os.path.join('data', 'species with images.csv'), index=False)
+    df_images.to_csv(os.path.join('data', 'species with images.csv'), index=False)

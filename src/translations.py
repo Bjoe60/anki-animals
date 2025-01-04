@@ -111,3 +111,8 @@ def get_translations():
 
     # Save the updated DataFrame to a file
     df.to_csv(os.path.join('data', 'species with translations.csv'), index=False)
+
+def print_number_of_translations():
+    df = pd.read_csv(os.path.join('data', 'species with translations.csv'))
+    for language, _ in LANGUAGES:
+        print(f"Species with {language} translation: {df[language].count()} / {len(df)}")

@@ -2,11 +2,9 @@ import pandas as pd
 import os
 
 ANIMALS = 'Life|Cellular Organisms|Eukaryota|Opisthokonta|Metazoa'
-VERTEBRATES = 'Life|Cellular Organisms|Eukaryota|Opisthokonta|Metazoa|Bilateria|Deuterostomia|Chordata|Vertebrata'
 BIRDS = 'Life|Cellular Organisms|Eukaryota|Opisthokonta|Metazoa|Bilateria|Deuterostomia|Chordata|Vertebrata|Gnathostomata|Osteichthyes|Sarcopterygii|Tetrapoda|Amniota|Reptilia|Diapsida|Archosauromorpha|Archosauria|Dinosauria|Saurischia|Theropoda|Tetanurae|Coelurosauria|Maniraptoriformes|Maniraptora|Aves'
-MAMMALS = 'Life|Cellular Organisms|Eukaryota|Opisthokonta|Metazoa|Bilateria|Deuterostomia|Chordata|Vertebrata|Gnathostomata|Osteichthyes|Sarcopterygii|Tetrapoda|Amniota|Synapsida|Therapsida|Cynodontia|Mammalia'
 
-WANTED_TAXA = MAMMALS
+WANTED_TAXA = ANIMALS
 
 # Gets a list of mammals with scientific names and EOL IDs
 def get_species():
@@ -14,7 +12,7 @@ def get_species():
 	df = pd.read_csv(os.path.join('data', 'taxon.tab'), sep='\t', usecols=['eolID', 'canonicalName', 'higherClassification', 'taxonRank'], dtype={'eolID': object, 'taxonRank': str, 'canonicalName': str, 'higherClassification': str})
 	df = df.dropna(subset=['higherClassification'])
 	df = df[df['higherClassification'].str.startswith(WANTED_TAXA)]
-	# Exclude birds as they have a separate deck
+	# Exclude birds as they have their own separate deck
 	df = df[~df['higherClassification'].str.startswith(BIRDS)]
 	df = df[df['taxonRank'].values == 'species']
 	df = df.drop(columns=['higherClassification', 'taxonRank'])
@@ -25,7 +23,7 @@ def get_species():
 	df_ids = pd.read_csv(os.path.join('data', 'full_provider_ids.csv'), usecols=['resource_pk', 'resource_id', 'page_id'], dtype={'resource_pk': str, 'resource_id': int, 'page_id': object})
 
 	# Add an ID column to the dataframe
-	def merge_provider_ids(df, resource_id, id_column, how):
+	def merge_provider_ids(df, resource_id, id_column, how='left'):
 		df_provider = df_ids[df_ids['resource_id'] == resource_id]
 		df = df.merge(df_provider, left_on='eolID', right_on='page_id', how=how)
 		df.drop(columns=['resource_id', 'page_id'], inplace=True)
@@ -35,9 +33,11 @@ def get_species():
 	# Get IDs to different resources
 	df = merge_provider_ids(df, 1177, 'inaturalistID', 'inner')
 	df = merge_provider_ids(df, 1178, 'gbifID', 'inner')
-	df = merge_provider_ids(df, 617, 'wikipediaID', 'left')
-	df = merge_provider_ids(df, 775, 'arkiveID', 'left')
-	df = merge_provider_ids(df, 560, 'adwID', 'left')
+	df = merge_provider_ids(df, 617, 'wikipediaID')
+	df = merge_provider_ids(df, 775, 'arkiveID')
+	df = merge_provider_ids(df, 560, 'adwID')
+	df = merge_provider_ids(df, 395, 'fishbaseID')
+	df = merge_provider_ids(df, 564, 'amphibiawebID')
 
 	print(len(df), 'species with IDs')
 
