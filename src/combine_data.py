@@ -27,7 +27,7 @@ def remove_unwanted_imgs(df):
 
 def combine_data():
     print("Combining data...")
-    all_dfs = [pd.read_csv(os.path.join('data', file)) for file in ['species.csv', 'species with identification.csv', 'species with translations.csv', 'species with countries.csv', 'species with images.csv']]
+    all_dfs = [pd.read_csv(os.path.join('data', file), low_memory=False) for file in ['species.csv', 'species with identification.csv', 'species with translations.csv', 'species with countries.csv', 'species with images.csv']]
 
     # Merge dataframes into one
     df = reduce(lambda left, right: pd.merge(left, right, on='eolID', how='left'), all_dfs)
