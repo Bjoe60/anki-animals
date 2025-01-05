@@ -68,6 +68,18 @@ def extract_wiki_section(html):
 
     return "".join(descriptions)
 
+def extract_first_paragraphs(html):
+    soup = BeautifulSoup(str(html), 'html.parser')
+    paragraphs = []
+    for paragraph in soup.find_all('p'):
+        if paragraph.find(['img', 'audio', 'a', 'iframe']):
+            continue
+        paragraphs.append(str(paragraph))
+        if is_longer_than(paragraphs, 2200):
+            break
+    
+    return "".join(paragraphs)
+
 # Add source to the last paragraph of the text
 def add_source(text, source):
     if not text:
@@ -82,11 +94,12 @@ def add_source(text, source):
     elems[-1].append(BeautifulSoup(f' ({source})', 'html.parser'))
     return str(soup)
 
+
 # Gets identification information from each resource page
 def get_identification():
     print('Getting identification information...')
-    cols = ['arkiveID', 'adwID', 'fishbaseID', 'amphibiawebID', 'wikipediaID']
-    resource_names = ['Arkive', 'Animal Diversity Web', 'FishBase', 'AmphibiaWeb', 'Wikipedia']
+    cols = ['arkiveID', 'adwID', 'fishbaseID', 'wikipediaID', 'amphibiawebID']
+    resource_names = ['Arkive', 'Animal Diversity Web', 'FishBase', 'Wikipedia', 'AmphibiaWeb']
     df_species = pd.read_csv(os.path.join('data', 'species.csv'), usecols=['eolID'] + cols, dtype=object)
     
     # Select only the rows with the desired section
@@ -100,13 +113,13 @@ def get_identification():
     df_arkive = load_and_filter_df(os.path.join('data', 'arkive', 'media_resource.tab'), 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description', section_column='title', further_info_column=False)
     df_adw = load_and_filter_df(os.path.join('data', 'animal_diversity_web', 'media_resource.tab'), 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Morphology')
     df_fishbase = load_and_filter_df(os.path.join('data', 'fishbase', 'media_resource.tab'), 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#DiagnosticDescription')
-    df_amphibiaweb = load_and_filter_df(os.path.join('data', 'amphibia_web', 'media_resource.tab'), 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription')
     df_wikipedia = load_and_filter_df(os.path.join('data', 'wikipedia', 'media_resource.tab'), 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description')
+    df_amphibiaweb = load_and_filter_df(os.path.join('data', 'amphibia_web', 'media_resource.tab'), 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription')
 
 
     # Merge into one dataframe
     df_merged = df_species
-    dfs = [df_arkive, df_adw, df_fishbase, df_amphibiaweb, df_wikipedia]
+    dfs = [df_arkive, df_adw, df_fishbase, df_wikipedia, df_amphibiaweb]
     for df, suffix in zip(dfs, cols):
         df_merged = df_merged.merge(df, left_on=suffix, right_on='taxonID', how='left', suffixes=('', f'_{suffix}'))
         df_merged = df_merged.rename(columns={'description': f'description_{suffix}', 'furtherInformationURL': f'url_{suffix}'})
@@ -116,8 +129,8 @@ def get_identification():
     df_merged['description_arkiveID'] = df_merged['description_arkiveID'].apply(remove_arkive_refs).apply(wrap_in_p_tag)
     df_merged['description_adwID'] = df_merged['description_adwID'].apply(remove_traits).apply(remove_adw_amphibia_refs)
     df_merged['description_fishbaseID'] = df_merged['description_fishbaseID'].apply(remove_fishbase_refs).apply(wrap_in_p_tag)
-    df_merged['description_amphibiawebID'] = df_merged['description_amphibiawebID'].apply(remove_adw_amphibia_refs)
     df_merged['description_wikipediaID'] = df_merged['description_wikipediaID'].apply(extract_wiki_section)
+    df_merged['description_amphibiawebID'] = df_merged['description_amphibiawebID'].apply(extract_first_paragraphs).apply(remove_adw_amphibia_refs)
 
     # Remove oldid from wikipedia urls
     df_merged['url_wikipediaID'] = df_merged['url_wikipediaID'].apply(lambda url: re.sub(r'&oldid=.*', '', url) if not pd.isnull(url) else None)

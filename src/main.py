@@ -7,7 +7,7 @@ from combine_data import combine_data
 
 def main():
     # get_species()
-    # get_identification()
+    get_identification()
     # get_translations()
     # get_countries()
     # get_images()

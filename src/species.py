@@ -2,9 +2,12 @@ import pandas as pd
 import os
 
 ANIMALS = 'Life|Cellular Organisms|Eukaryota|Opisthokonta|Metazoa'
+PLANTS = 'Life|Cellular Organisms|Eukaryota|Archaeplastida|Chloroplastida'
+MUSHROOMS = 'Life|Cellular Organisms|Eukaryota|Opisthokonta|Nucletmycea|Fungi|Dikarya|Basidiomycota|Agaricomycetes'
 BIRDS = 'Life|Cellular Organisms|Eukaryota|Opisthokonta|Metazoa|Bilateria|Deuterostomia|Chordata|Vertebrata|Gnathostomata|Osteichthyes|Sarcopterygii|Tetrapoda|Amniota|Reptilia|Diapsida|Archosauromorpha|Archosauria|Dinosauria|Saurischia|Theropoda|Tetanurae|Coelurosauria|Maniraptoriformes|Maniraptora|Aves'
 
 WANTED_TAXA = ANIMALS
+DECK_NAME = 'Animals'
 
 # Gets a list of mammals with scientific names and EOL IDs
 def get_species():

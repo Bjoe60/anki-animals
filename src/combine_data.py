@@ -2,6 +2,7 @@ import pandas as pd
 import os
 from functools import reduce
 from string import capwords
+from species import DECK_NAME
 
 UNWANTED_IMGS = {'<img src="https://www.inaturalist.org/assets/copyright-infringement-large.png">'}
 COLUMNS = ['Scientific', 'EOL ID', 'iNaturalist ID', 'GBIF ID', 'Conservation status', 'Observations', 'Taxonomic sort', 'Observations sort', 'Identification', 'Images', 'Tags', 'English', 'Afrikaans', 'Albanian', 'Arabic', 'Armenian', 'Azerbaijani', 'Belarusian', 'Bengali', 'Bulgarian', 'Catalan', 'Chinese', 'Croatian', 'Czech', 'Danish', 'Dutch', 'Estonian', 'Finnish', 'French', 'Galician', 'Georgian', 'German', 'Greek', 'Hebrew', 'Hungarian', 'Icelandic', 'Indonesian', 'Italian', 'Japanese', 'Kazakh', 'Korean', 'Latvian', 'Lithuanian', 'Macedonian', 'Malay', 'Maltese', 'Mongolian', 'Nepali', 'Norwegian', 'Persian', 'Polish', 'Portuguese', 'Romanian', 'Russian', 'Serbian', 'Slovak', 'Slovenian', 'Spanish', 'Swahili', 'Swedish', 'Thai', 'Turkish', 'Ukrainian', 'Uzbek', 'Vietnamese']
@@ -12,9 +13,9 @@ def create_sort_string(df, name):
 
 
 def create_csv(df):
-    with open(os.path.join('data', 'animals.csv'), 'w', encoding='utf-8', newline='') as f:
+    with open(os.path.join('data', f'{DECK_NAME}.csv'), 'w', encoding='utf-8', newline='') as f:
         # File header for Anki
-        f.write(f'#separator:Comma\n#html:true\n#notetype:Species\n#deck:Animals\n#tags column:{COLUMNS.index("Tags") + 1}\n#columns:{",".join(COLUMNS)}\n')
+        f.write(f'#separator:Comma\n#html:true\n#notetype:Species\n#deck:{DECK_NAME}\n#tags column:{COLUMNS.index("Tags") + 1}\n#columns:{",".join(COLUMNS)}\n')
         
         df.to_csv(f, index=False, header=False)
 
