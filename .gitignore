@@ -1,6 +1,11 @@
 data/*
 
 !data/GBIF_output.csv
+!data/species.csv
+!data/species with identification.csv
+!data/species with translations.csv
+!data/species with countries.csv
+!data/species with images.csv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

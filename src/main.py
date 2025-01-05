@@ -9,7 +9,7 @@ def main():
     # get_species()
     # get_identification()
     # get_translations()
-    get_countries()
+    # get_countries()
     # get_images()
     combine_data()
 
