@@ -5,8 +5,9 @@ ANIMALS = 'Life|Cellular Organisms|Eukaryota|Opisthokonta|Metazoa'
 PLANTS = 'Life|Cellular Organisms|Eukaryota|Archaeplastida|Chloroplastida'
 MUSHROOMS = 'Life|Cellular Organisms|Eukaryota|Opisthokonta|Nucletmycea|Fungi|Dikarya|Basidiomycota|Agaricomycetes'
 BIRDS = 'Life|Cellular Organisms|Eukaryota|Opisthokonta|Metazoa|Bilateria|Deuterostomia|Chordata|Vertebrata|Gnathostomata|Osteichthyes|Sarcopterygii|Tetrapoda|Amniota|Reptilia|Diapsida|Archosauromorpha|Archosauria|Dinosauria|Saurischia|Theropoda|Tetanurae|Coelurosauria|Maniraptoriformes|Maniraptora|Aves'
+MAMMALS = 'Life|Cellular Organisms|Eukaryota|Opisthokonta|Metazoa|Bilateria|Deuterostomia|Chordata|Vertebrata|Gnathostomata|Osteichthyes|Sarcopterygii|Tetrapoda|Amniota|Synapsida|Therapsida|Cynodontia|Mammalia'
 
-WANTED_TAXA = ANIMALS
+WANTED_TAXA = MAMMALS
 DECK_NAME = 'Animals'
 
 # Gets a list of mammals with scientific names and EOL IDs

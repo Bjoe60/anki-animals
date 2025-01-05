@@ -5,16 +5,10 @@ from string import capwords
 
 LANGUAGES = [
     ('English', ['eng']),
-    ('Afrikaans', ['afr']),
-    ('Albanian', ['alb']),
     ('Arabic', ['ara']),
-    ('Armenian', ['arm']),
     ('Azerbaijani', ['aze']),
-    ('Belarusian', ['bel']),
-    ('Bengali', ['ben']),
     ('Bulgarian', ['bul']),
     ('Catalan', ['cat']),
-    ('Chinese', ['zh-cn', 'chi']),
     ('Croatian', ['hrv']),
     ('Czech', ['cze']),
     ('Danish', ['dan']),
@@ -22,41 +16,26 @@ LANGUAGES = [
     ('Estonian', ['est']),
     ('Finnish', ['fin']),
     ('French', ['fre']),
-    ('Galician', ['glg']),
-    ('Georgian', ['geo']),
     ('German', ['ger']),
-    ('Greek', ['gre']),
     ('Hebrew', ['heb']),
     ('Hungarian', ['hun']),
-    ('Icelandic', ['ice']),
     ('Indonesian', ['ind']),
     ('Italian', ['ita']),
     ('Japanese', ['jpn']),
-    ('Kazakh', ['kaz']),
-    ('Korean', ['kor']),
-    ('Latvian', ['lav']),
     ('Lithuanian', ['lit']),
-    ('Macedonian', ['mac']),
     ('Malay', ['may']),
-    ('Maltese', ['mlt']),
-    ('Mongolian', ['mon']),
-    ('Nepali', ['nep']),
     ('Norwegian', ['nor', 'nob']),
     ('Persian', ['per']),
     ('Polish', ['pol']),
     ('Portuguese', ['por']),
-    ('Romanian', ['rum']),
     ('Russian', ['rus']),
     ('Serbian', ['srp']),
     ('Slovak', ['slo']),
-    ('Slovenian', ['slv']),
     ('Spanish', ['spa', 'sp']),
-    ('Swahili', ['swa']),
     ('Swedish', ['swe']),
     ('Thai', ['tha']),
     ('Turkish', ['tur']),
     ('Ukrainian', ['ukr']),
-    ('Uzbek', ['uzb']),
     ('Vietnamese', ['vie']),
 ]
 
@@ -115,4 +94,5 @@ def get_translations():
 def print_number_of_translations():
     df = pd.read_csv(os.path.join('data', 'species with translations.csv'))
     for language, _ in LANGUAGES:
-        print(f"Species with {language} translation: {df[language].count()} / {len(df)}")
+        if df[language].count() < 600:
+            print(f"Species with {language} translation: {df[language].count()} / {len(df)}")
