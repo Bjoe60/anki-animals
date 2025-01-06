@@ -6,7 +6,6 @@ import os
 
 DECK_NAME = 'The Animal Deck'
 TAXONOMIC_SORT_COLUMN = 9
-NUMERICAL_COLUMNS = [2, 6, 7, 8, 9, 10]
 
 def sort_rows():
     df_header = pd.read_csv(os.path.join('data', f'{DECK_NAME}.txt'), sep='\t', nrows=6, header=None, dtype=str)

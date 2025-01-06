@@ -71,7 +71,7 @@ def merge_translations(df_translations):
     return df_translations
 
 
-# Gets the English translations for the species
+# Gets the translations for the species
 def get_translations():
     print("Getting translations...")
     df = pd.read_csv(os.path.join('data', 'species.csv'), usecols=['eolID'])

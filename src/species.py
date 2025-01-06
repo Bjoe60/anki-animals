@@ -9,7 +9,7 @@ BIRDS = 'Life|Cellular Organisms|Eukaryota|Opisthokonta|Metazoa|Bilateria|Deuter
 WANTED_TAXA = ANIMALS
 DECK_NAME = 'The Animal Deck'
 
-# Gets a list of mammals with scientific names and EOL IDs
+# Gets a list of mammals with scientific names and resource IDs
 def get_species():
 	print("Getting species...")
 	df = pd.read_csv(os.path.join('data', 'taxon.tab'), sep='\t', usecols=['eolID', 'canonicalName', 'higherClassification', 'taxonRank'], dtype={'eolID': object, 'taxonRank': str, 'canonicalName': str, 'higherClassification': str})

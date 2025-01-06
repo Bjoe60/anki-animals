@@ -76,7 +76,7 @@ def process_results_to_dataframe(results, original_df):
 
     return results_df
 
-
+# Gets images, conservation status, observation count, English name and taxonomy name from iNaturalist
 def get_images():
     print("Getting images...")
     df = pd.read_csv(os.path.join('data', 'species.csv'), usecols=['eolID', 'inaturalistID'], dtype={'inaturalistID': int, 'gbifID': int})

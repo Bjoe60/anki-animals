@@ -27,7 +27,7 @@ def remove_unwanted_imgs(df):
             [img for img in x.split(';;') if img.split('|')[0] not in UNWANTED_IMGS]
         ) if isinstance(x, str) else x)
 
-
+# Combines data from different sources into one dataframe
 def combine_data():
     print("Combining data...")
     all_dfs = [pd.read_csv(os.path.join('data', file), low_memory=False) for file in ['species.csv', 'species with identification.csv', 'species with translations.csv', 'species with countries.csv', 'species with images.csv']]

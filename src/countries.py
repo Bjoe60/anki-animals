@@ -25,6 +25,7 @@ def merge_rows(df):
     
     return df
 
+# Get countries where each species has been observed at least 5 times since 2000 (or is rare globally)
 def get_countries():
     print("Getting countries...")
     df = pd.read_csv(os.path.join('data', 'species.csv'), usecols=['eolID', 'gbifID'])
