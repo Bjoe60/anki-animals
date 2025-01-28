@@ -19,16 +19,33 @@ def remove_traits(text):
             p.decompose()
     return str(soup)
 
-def remove_adw_amphibia_refs(text):
-    return re.sub(r'\s?\(.+?\d{4}\)', '', text) if not pd.isnull(text) else None
+def replace_line_breaks(text):
+    return text.replace('\\n', '<br>') if not pd.isnull(text) else None
 
+def replace_old_links(text):
+    if pd.isnull(text):
+        return None
+    soup = BeautifulSoup(text, 'html.parser')
+    for a in soup.find_all('a'):
+        if a.get('href', '').startswith('http://animaldiversity.ummz.umich.edu/site'):
+            a.decompose()
+    return str(soup)
+
+# Remove references like (Source 2000)
+def remove_adw_amphibia_refs(text):
+    return re.sub(r'(<p>)?\s?\([^)]+?\d{4}[^)]*?\)(?(1)\.?<\/p>)', '', text).replace('. .', '.') if not pd.isnull(text) else None
+
+# Remove references like (Ref. source)
 def remove_fishbase_refs(text):
     return re.sub(r'\s?\(Ref\..*?\)', '', text) if not pd.isnull(text) else None
 
 # Remove references like [1], [2], etc.
 def remove_wiki_refs(soup):
     for sup_tag in soup.find_all('sup'):
-        if sup_tag.get('id', '').startswith('cite_ref'):
+        if not sup_tag.decomposed and sup_tag.get('id', '').startswith('cite_ref'):
+            # Remove all sup tags next to the current one
+            for sibling in sup_tag.find_next_siblings('sup'):
+                sibling.decompose()
             sup_tag.decompose()
     return str(soup)
 
@@ -41,8 +58,13 @@ def find_description_header(soup):
             return header
     return None
 
-def is_longer_than(descriptions, length):
-    return sum(len(desc) for desc in descriptions) > length
+def is_too_long(descriptions):
+    return sum(len(desc) for desc in descriptions) > 2200
+
+def add_dots(text):
+    if text.endswith('</p>'):
+        return re.sub(r'</p>$', r'</p><p>...</p>', text)
+    return re.sub(r'\.?\s?(<\/[^>]+>)$', r'...\1', text)
 
 # Extract the "Description" section from the Wikipedia text
 def extract_wiki_section(html):
@@ -61,9 +83,14 @@ def extract_wiki_section(html):
             continue
 
         # Stop at the next header or when text is long enough
-        if sibling.name in {'h2', 'h3'} or sibling.find(['h2', 'h3']) and descriptions or is_longer_than(descriptions, 2200):
+        if sibling.name == 'h2' or sibling.find('h2') or \
+            (sibling.name == 'h3' or sibling.find('h3')) and descriptions:
             break
-        
+        if is_too_long(descriptions):
+            # Add '...' to the end if cut off
+            descriptions[-1] = add_dots(descriptions[-1])
+            break
+
         descriptions.append(remove_wiki_refs(sibling))
 
     return "".join(descriptions)
@@ -75,7 +102,9 @@ def extract_first_paragraphs(html):
         if paragraph.find(['img', 'audio', 'a', 'iframe']):
             continue
         paragraphs.append(str(paragraph))
-        if is_longer_than(paragraphs, 2200):
+        if is_too_long(paragraphs):
+            # Add '...' to the end if cut off
+            paragraphs[-1] = add_dots(paragraphs[-1])
             break
     
     return "".join(paragraphs)
@@ -84,15 +113,7 @@ def extract_first_paragraphs(html):
 def add_source(text, source):
     if not text:
         return None
-    soup = BeautifulSoup(text, 'html.parser')
-    for tag in ['p', 'ul', 'div', 'dl']:
-        elems = soup.find_all(tag)
-        if elems:
-            break
-    if not elems:
-        return None
-    elems[-1].append(BeautifulSoup(f' ({source})', 'html.parser'))
-    return str(soup)
+    return re.sub(r'(<\/[^>]+>)$', fr' ({source})\1', text)
 
 
 # Gets identification information from each resource page
@@ -127,7 +148,7 @@ def get_identification():
 
     # Clean up the descriptions
     df_merged['description_arkiveID'] = df_merged['description_arkiveID'].apply(remove_arkive_refs).apply(wrap_in_p_tag)
-    df_merged['description_adwID'] = df_merged['description_adwID'].apply(remove_traits).apply(remove_adw_amphibia_refs)
+    df_merged['description_adwID'] = df_merged['description_adwID'].apply(remove_traits).apply(remove_adw_amphibia_refs).apply(replace_line_breaks).apply(replace_old_links)
     df_merged['description_fishbaseID'] = df_merged['description_fishbaseID'].apply(remove_fishbase_refs).apply(wrap_in_p_tag)
     df_merged['description_wikipediaID'] = df_merged['description_wikipediaID'].apply(extract_wiki_section)
     df_merged['description_amphibiawebID'] = df_merged['description_amphibiawebID'].apply(extract_first_paragraphs).apply(remove_adw_amphibia_refs)
