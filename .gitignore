@@ -1,5 +1,9 @@
 data/input/*
 !data/input/GBIF_output.csv
+data/output/*
+
+# LibreOffice lock files
+*.~lock*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
