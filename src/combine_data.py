@@ -2,22 +2,22 @@ import pandas as pd
 import os
 from functools import reduce
 from string import capwords
-from species import DECK_NAME
 from translations import LANGUAGES
 
 UNWANTED_IMGS = {'<img src="https://www.inaturalist.org/assets/copyright-infringement-large.png">'}
 COLUMNS = ['Scientific', 'EOL ID', 'iNaturalist ID', 'GBIF ID', 'Conservation status', 'Observations', 'Taxonomic sort', 'Observations sort', 'Identification', 'Images', 'Tags']
-COLUMNS = COLUMNS + [language for language, _ in LANGUAGES]
+COLUMNS.extend([language for language, _ in LANGUAGES])
 
 # Create sortable string of numbers with leading zeros using current order
 def create_sort_string(df, name):
     df[name] = df.reset_index(drop=True).index.map(lambda i: f"{i:06d}")
 
 
-def create_csv(df):
-    with open(os.path.join('data', f'{DECK_NAME}.csv'), 'w', encoding='utf-8', newline='') as f:
+def create_csv(df, species_type):
+    deck_name = f'The {species_type} Deck'
+    with open(os.path.join('data', 'output', f'{deck_name}.csv'), 'w', encoding='utf-8', newline='') as f:
         # File header for Anki
-        f.write(f'#separator:Comma\n#html:true\n#notetype:Species\n#deck:{DECK_NAME}\n#tags column:{COLUMNS.index("Tags") + 1}\n#columns:{",".join(COLUMNS)}\n')
+        f.write(f'#separator:Comma\n#html:true\n#notetype:Species\n#deck:{deck_name}\n#tags column:{COLUMNS.index("Tags") + 1}\n#columns:{",".join(COLUMNS)}\n')
         
         df.to_csv(f, index=False, header=False)
 
@@ -28,9 +28,9 @@ def remove_unwanted_imgs(df):
         ) if isinstance(x, str) else x)
 
 # Combines data from different sources into one dataframe
-def combine_data():
+def combine_data(deck):
     print("Combining data...")
-    all_dfs = [pd.read_csv(os.path.join('data', file), low_memory=False) for file in ['species.csv', 'species with identification.csv', 'species with translations.csv', 'species with countries.csv', 'species with images.csv']]
+    all_dfs = [pd.read_csv(os.path.join('data', 'processed', f'{deck.value['type']} {file}'), low_memory=False) for file in ['species.csv', 'species with identification.csv', 'species with translations.csv', 'species with countries.csv', 'species with images.csv']]
 
     # Merge dataframes into one
     df = reduce(lambda left, right: pd.merge(left, right, on='eolID', how='left'), all_dfs)
@@ -63,5 +63,5 @@ def combine_data():
     df = df.reindex(columns=COLUMNS)
     
 
-    create_csv(df)
+    create_csv(df, deck.value['type'])
     print("Done.")

@@ -26,13 +26,13 @@ def merge_rows(df):
     return df
 
 # Get countries where each species has been observed at least 5 times since 2000 (or is rare globally)
-def get_countries():
+def get_countries(deck):
     print("Getting countries...")
-    df = pd.read_csv(os.path.join('data', 'species.csv'), usecols=['eolID', 'gbifID'])
-    df_countries = pd.read_csv(os.path.join('data', 'GBIF_output.csv'), sep='\t', keep_default_na=False, na_values=[''], dtype={'specieskey': int, 'countrycode': str, 'observation_count': int})
+    df = pd.read_csv(os.path.join('data', 'processed', f'{deck.value['type']} species.csv'), usecols=['eolID', 'gbifID'])
+    df_countries = pd.read_csv(os.path.join('data', 'input', 'GBIF_output.csv'), sep='\t', keep_default_na=False, na_values=[''], dtype={'specieskey': int, 'countrycode': str, 'observation_count': int})
     
     df_countries = merge_rows(df_countries)
 
     df = df.merge(df_countries, left_on='gbifID', right_on='specieskey', how='left')
     df.drop(columns=['specieskey', 'gbifID'], inplace=True)
-    df.to_csv(os.path.join('data', 'species with countries.csv'), index=False)
+    df.to_csv(os.path.join('data', 'processed', f'{deck.value['type']} species with countries.csv'), index=False)

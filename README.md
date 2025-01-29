@@ -4,9 +4,9 @@ Code used to generate [The Animal Deck](https://ankiweb.net/shared/info/93460021
 
 Csv files are generated consecutively for each method in main.py and combined in `combine_data()` to limit running times. Uncomment the methods where something is changed and change which species are gathered in `species.py`.
 
-Note that `get_images()` takes three hours to run with the API call limit.
+Note that `get_images()` takes three hours to run with the API call limit, so only run it if you have changed anything in `images.py`.
 
-To update the country information, you will have to become an invited tester for [GBIFs API SQL Downloads](https://techdocs.gbif.org/en/data-use/api-sql-downloads) and follow the instructions on that page.
+To update the country information (`GBIF_output.csv`), you will have to become an invited tester for [GBIFs API SQL Downloads](https://techdocs.gbif.org/en/data-use/api-sql-downloads) and follow the instructions on that page.
 
 ## Files
 These files were too large to upload to GitHub:

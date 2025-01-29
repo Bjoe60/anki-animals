@@ -41,7 +41,10 @@ def generate_taxonomy(ancestors):
     for ancestor in ancestors:
         if ancestor.get('rank') in WANTED_RANKS:
             # Use scientific name if common name is not available
-            taxonomy.append(ancestor.get('preferred_common_name', ancestor.get('name')))
+            name = ancestor.get('preferred_common_name', ancestor.get('name')).title()
+            if name == 'Fungi Including Lichens':
+                name = 'Fungi'
+            taxonomy.append(name)
     
     return '::'.join(taxonomy).replace(' ', '-')
 
@@ -77,9 +80,9 @@ def process_results_to_dataframe(results, original_df):
     return results_df
 
 # Gets images, conservation status, observation count, English name and taxonomy name from iNaturalist
-def get_images():
+def get_images(deck):
     print("Getting images...")
-    df = pd.read_csv(os.path.join('data', 'species.csv'), usecols=['eolID', 'inaturalistID'], dtype={'inaturalistID': int, 'gbifID': int})
+    df = pd.read_csv(os.path.join('data', 'processed', f'{deck.value['type']} species.csv'), usecols=['eolID', 'inaturalistID'], dtype={'inaturalistID': int, 'gbifID': int})
 
     # Get list of ids from iNaturalist in integer format
     ids = df['inaturalistID'].unique()
@@ -99,4 +102,4 @@ def get_images():
     df_images = df.merge(results_df, on='inaturalistID', how='inner', suffixes=('', '_new'))
     df_images.drop(columns=['inaturalistID'], inplace=True)
 
-    df_images.to_csv(os.path.join('data', 'species with images.csv'), index=False)
+    df_images.to_csv(os.path.join('data', 'processed', f'{deck.value['type']} species with images.csv'), index=False)

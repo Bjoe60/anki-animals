@@ -72,10 +72,10 @@ def merge_translations(df_translations):
 
 
 # Gets the translations for the species
-def get_translations():
+def get_translations(deck):
     print("Getting translations...")
-    df = pd.read_csv(os.path.join('data', 'species.csv'), usecols=['eolID'])
-    df_translations = pd.read_csv(os.path.join('data', 'vernacularnames.csv'), dtype={'page_id': int, 'canonical_form': str, 'vernacular_string': str, 'language_code': str, 'resource_name': str, 'is_preferred_by_resource': str, 'is_preferred_by_eol': str})
+    df = pd.read_csv(os.path.join('data', 'processed', f'{deck.value['type']} species.csv'), usecols=['eolID'])
+    df_translations = pd.read_csv(os.path.join('data', 'input', 'vernacularnames.csv'), dtype={'page_id': int, 'canonical_form': str, 'vernacular_string': str, 'language_code': str, 'resource_name': str, 'is_preferred_by_resource': str, 'is_preferred_by_eol': str})
 
     # Fill out translations for additional languages
     for language, codes in LANGUAGES:
@@ -89,10 +89,4 @@ def get_translations():
         df.drop(columns=['page_id'], inplace=True)
 
     # Save the updated DataFrame to a file
-    df.to_csv(os.path.join('data', 'species with translations.csv'), index=False)
-
-def print_number_of_translations():
-    df = pd.read_csv(os.path.join('data', 'species with translations.csv'))
-    for language, _ in LANGUAGES:
-        if df[language].count() < 600:
-            print(f"Species with {language} translation: {df[language].count()} / {len(df)}")
+    df.to_csv(os.path.join('data', 'processed', f'{deck.value['type']} species with translations.csv'), index=False)

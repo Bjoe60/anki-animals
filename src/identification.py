@@ -117,11 +117,11 @@ def add_source(text, source):
 
 
 # Gets identification information from each resource page
-def get_identification():
+def get_identification(deck):
     print('Getting identification information...')
     cols = ['arkiveID', 'adwID', 'fishbaseID', 'wikipediaID', 'amphibiawebID']
     resource_names = ['Arkive', 'Animal Diversity Web', 'FishBase', 'Wikipedia', 'AmphibiaWeb']
-    df_species = pd.read_csv(os.path.join('data', 'species.csv'), usecols=['eolID'] + cols, dtype=object)
+    df_species = pd.read_csv(os.path.join('data', 'processed', f'{deck.value['type']} species.csv'), usecols=['eolID'] + cols, dtype=object)
     
     # Select only the rows with the desired section
     def load_and_filter_df(file_path, term, section_column="CVterm", further_info_column=True):
@@ -131,11 +131,11 @@ def get_identification():
         df = pd.read_csv(file_path, sep='\t', usecols=usecols, dtype=object)
         return df[df[section_column] == term]
 
-    df_arkive = load_and_filter_df(os.path.join('data', 'arkive', 'media_resource.tab'), 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description', section_column='title', further_info_column=False)
-    df_adw = load_and_filter_df(os.path.join('data', 'animal_diversity_web', 'media_resource.tab'), 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Morphology')
-    df_fishbase = load_and_filter_df(os.path.join('data', 'fishbase', 'media_resource.tab'), 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#DiagnosticDescription')
-    df_wikipedia = load_and_filter_df(os.path.join('data', 'wikipedia', 'media_resource.tab'), 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description')
-    df_amphibiaweb = load_and_filter_df(os.path.join('data', 'amphibia_web', 'media_resource.tab'), 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription')
+    df_arkive = load_and_filter_df(os.path.join('data', 'input', 'arkive', 'media_resource.tab'), 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description', section_column='title', further_info_column=False)
+    df_adw = load_and_filter_df(os.path.join('data', 'input', 'animal_diversity_web', 'media_resource.tab'), 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Morphology')
+    df_fishbase = load_and_filter_df(os.path.join('data', 'input', 'fishbase', 'media_resource.tab'), 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#DiagnosticDescription')
+    df_wikipedia = load_and_filter_df(os.path.join('data', 'input', 'wikipedia', 'media_resource.tab'), 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description')
+    df_amphibiaweb = load_and_filter_df(os.path.join('data', 'input', 'amphibia_web', 'media_resource.tab'), 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription')
 
 
     # Merge into one dataframe
@@ -173,4 +173,4 @@ def get_identification():
     print(f"Species with identification info: {df_merged['identification'].count()} / {len(df_merged)}")
 
     df_merged = df_merged.reindex(columns=['eolID', 'identification'])
-    df_merged.to_csv(os.path.join('data', 'species with identification.csv'), index=False)
+    df_merged.to_csv(os.path.join('data', 'processed', f'{deck.value['type']} species with identification.csv'), index=False)
