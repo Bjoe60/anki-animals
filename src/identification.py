@@ -99,7 +99,7 @@ def extract_first_paragraphs(html):
     soup = BeautifulSoup(str(html), 'html.parser')
     paragraphs = []
     for paragraph in soup.find_all('p'):
-        if paragraph.find(['img', 'audio', 'a', 'iframe']):
+        if paragraph.find(['img', 'audio', 'iframe']):
             continue
         paragraphs.append(str(paragraph))
         if is_too_long(paragraphs):
@@ -109,9 +109,22 @@ def extract_first_paragraphs(html):
     
     return "".join(paragraphs)
 
+def clean_html(text):
+    if pd.isnull(text):
+        return None
+    
+    # Remove text before the first tag
+    text = re.sub(r'^[^<]*<', '<', text)
+
+    soup = BeautifulSoup(text, 'html.parser')
+    for tag in ['img', 'video', 'audio', 'iframe']:
+        for match in soup.find_all(tag):
+            match.decompose()
+    return str(soup)
+
 # Add source to the last paragraph of the text
 def add_source(text, source):
-    if not text:
+    if pd.isnull(text):
         return None
     return re.sub(r'(<\/[^>]+>)$', fr' ({source})\1', text)
 
@@ -135,6 +148,7 @@ def get_identification(deck):
     df_adw = load_and_filter_df(os.path.join('data', 'input', 'animal_diversity_web', 'media_resource.tab'), 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Morphology')
     df_fishbase = load_and_filter_df(os.path.join('data', 'input', 'fishbase', 'media_resource.tab'), 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#DiagnosticDescription')
     df_wikipedia = load_and_filter_df(os.path.join('data', 'input', 'wikipedia', 'media_resource.tab'), 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description')
+    df_wikipedia_summary = load_and_filter_df(os.path.join('data', 'input', 'wikipedia', 'media_resource.tab'), 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology')
     df_amphibiaweb = load_and_filter_df(os.path.join('data', 'input', 'amphibia_web', 'media_resource.tab'), 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription')
 
 
@@ -144,7 +158,6 @@ def get_identification(deck):
     for df, suffix in zip(dfs, cols):
         df_merged = df_merged.merge(df, left_on=suffix, right_on='taxonID', how='left', suffixes=('', f'_{suffix}'))
         df_merged = df_merged.rename(columns={'description': f'description_{suffix}', 'furtherInformationURL': f'url_{suffix}'})
-    
 
     # Clean up the descriptions
     df_merged['description_arkiveID'] = df_merged['description_arkiveID'].apply(remove_arkive_refs).apply(wrap_in_p_tag)
@@ -152,6 +165,12 @@ def get_identification(deck):
     df_merged['description_fishbaseID'] = df_merged['description_fishbaseID'].apply(remove_fishbase_refs).apply(wrap_in_p_tag)
     df_merged['description_wikipediaID'] = df_merged['description_wikipediaID'].apply(extract_wiki_section)
     df_merged['description_amphibiawebID'] = df_merged['description_amphibiawebID'].apply(extract_first_paragraphs).apply(remove_adw_amphibia_refs)
+
+    # Fill missing Wikipedia descriptions with the summary
+    df_merged = df_merged.merge(df_wikipedia_summary, left_on='wikipediaID', right_on='taxonID', how='left', suffixes=('', '_summary'))
+    df_merged['description'] = df_merged['description'].apply(clean_html)
+    df_merged['description_wikipediaID'] = df_merged['description_wikipediaID'].combine_first(df_merged['description'])
+
 
     # Remove oldid from wikipedia urls
     df_merged['url_wikipediaID'] = df_merged['url_wikipediaID'].apply(lambda url: re.sub(r'&oldid=.*', '', url) if not pd.isnull(url) else None)
@@ -164,13 +183,13 @@ def get_identification(deck):
             refs = df_merged[f'url_{col}'].apply(lambda url: f'<a href="{url}">{resource_name}</a>')
         df_merged[f'description_{col}'] = df_merged[f'description_{col}'].combine(refs, add_source)
 
-    # Fill missing descriptions with the order of priority in cols
+    # Fill missing descriptions with the order of priority in 'cols'
     df_merged['identification'] = pd.NA
     for col in cols:
         df_merged['identification'] = df_merged['identification'].fillna(df_merged[f'description_{col}'])
 
 
-    print(f"Species with identification info: {df_merged['identification'].count()} / {len(df_merged)}")
+    print(f"Species with identification info: {(df_merged['identification'] != '').sum()} / {len(df_merged)}")
 
     df_merged = df_merged.reindex(columns=['eolID', 'identification'])
     df_merged.to_csv(os.path.join('data', 'processed', f'{deck.value['type']} species with identification.csv'), index=False)
