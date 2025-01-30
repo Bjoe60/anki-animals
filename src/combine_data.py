@@ -5,6 +5,7 @@ from string import capwords
 from translations import LANGUAGES
 
 UNWANTED_IMGS = {'<img src="https://www.inaturalist.org/assets/copyright-infringement-large.png">'}
+UNWANTED_SPECIES = {879101}
 COLUMNS = ['Scientific', 'EOL ID', 'iNaturalist ID', 'GBIF ID', 'Conservation status', 'Observations', 'Taxonomic sort', 'Observations sort', 'Identification', 'Images', 'Tags']
 COLUMNS.extend([language for language, _ in LANGUAGES])
 
@@ -26,7 +27,7 @@ def remove_unwanted_imgs(df):
     df['images'] = df['images'].apply(lambda x: ';;'.join(
             [img for img in x.split(';;') if img.split('|')[0] not in UNWANTED_IMGS]
         ) if isinstance(x, str) else x)
-
+    
 # Combines data from different sources into one dataframe
 def combine_data(deck):
     print("Combining data...")
@@ -36,6 +37,9 @@ def combine_data(deck):
     df = reduce(lambda left, right: pd.merge(left, right, on='eolID', how='left'), all_dfs)
     
     remove_unwanted_imgs(df)
+
+    # Remove unwanted species
+    df = df[~df['eolID'].isin(UNWANTED_SPECIES)]
 
     # Prefer the English names from iNaturalist
     df['English'] = df['preferred_common_name'].combine_first(df['English'])
