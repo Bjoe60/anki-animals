@@ -38,8 +38,14 @@ def combine_data(deck):
     
     remove_unwanted_imgs(df)
 
+    # Remove unwanted ranks
+    df = df[df['rank'].isin(deck.value['taxon_rank'])]
+
     # Remove unwanted species
     df = df[~df['eolID'].isin(UNWANTED_SPECIES)]
+
+    # Remove if in wrong kingdom
+    df = df[df['taxonomy_tag'].str.startswith(deck.value['kingdom'])]
 
     # Prefer the English names from iNaturalist
     df['English'] = df['preferred_common_name'].combine_first(df['English'])
@@ -50,8 +56,9 @@ def combine_data(deck):
     df.dropna(subset=['images'], inplace=True)
 
     # Create tags
-    df['countries'] = df['countries'].fillna('')
-    df['taxonomy_tag'] = df['countries'] + ' ' + df['taxonomy_tag']
+    df['taxonomy_tag'] = df['countries'].fillna('') + ' ' + df['taxonomy_tag']
+    if len(deck.value['taxon_rank']) > 1:
+        df['taxonomy_tag'] = df['taxonomy_tag'] + ' ' + df['rank']
 
     # Create strings to sort by in Anki
     df['observations_count'] = df['observations_count'].astype('Int64')
@@ -60,7 +67,8 @@ def combine_data(deck):
     df.sort_values(by=['observations_count', 'Taxonomic sort'], ascending=[False, True], inplace=True)
     create_sort_string(df, 'Observations sort')
     
-    df.sort_values(by='Taxonomic sort', inplace=True)
+    df['rank'] = pd.Categorical(df['rank'], categories=['genus', 'species'], ordered=True)
+    df.sort_values(by=['rank', 'Taxonomic sort'], ascending=[True, True], inplace=True)
 
     # Rename and reorder columns
     df.rename(columns={'canonicalName': 'Scientific', 'eolID': 'EOL ID', 'inaturalistID': 'iNaturalist ID', 'gbifID': 'GBIF ID', 'identification': 'Identification', 'conservation_status': 'Conservation status', 'images': 'Images', 'observations_count': 'Observations', 'taxonomy_tag': 'Tags'}, inplace=True)

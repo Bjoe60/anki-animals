@@ -4,17 +4,17 @@ import os
 BIRD_TAXA = 'Life|Cellular Organisms|Eukaryota|Opisthokonta|Metazoa|Bilateria|Deuterostomia|Chordata|Vertebrata|Gnathostomata|Osteichthyes|Sarcopterygii|Tetrapoda|Amniota|Reptilia|Diapsida|Archosauromorpha|Archosauria|Dinosauria|Saurischia|Theropoda|Tetanurae|Coelurosauria|Maniraptoriformes|Maniraptora|Aves'
 
 # Gets a list of mammals with scientific names and resource IDs
-def get_species(deck):
-	print("Getting species...")
+def get_taxa(deck):
+	print("Getting taxa...")
 	df = pd.read_csv(os.path.join('data', 'input', 'taxon.tab'), sep='\t', usecols=['eolID', 'canonicalName', 'higherClassification', 'taxonRank'], dtype={'eolID': object, 'taxonRank': str, 'canonicalName': str, 'higherClassification': str})
 	df = df.dropna(subset=['higherClassification'])
 	df = df[df['higherClassification'].str.startswith(deck.value['taxa'])]
 	# Exclude birds as they have their own separate deck (only relevant for animals)
 	df = df[~df['higherClassification'].str.startswith(BIRD_TAXA)]
-	df = df[df['taxonRank'].values == 'species']
+	df = df[df['taxonRank'].isin(deck.value['taxon_rank'])]
 	df = df.drop(columns=['higherClassification', 'taxonRank'])
 
-	print(len(df), 'species')
+	print(len(df), 'taxa')
 
 	# Get iNaturalist IDs
 	df_ids = pd.read_csv(os.path.join('data', 'input', 'full_provider_ids.csv'), usecols=['resource_pk', 'resource_id', 'page_id'], dtype={'resource_pk': str, 'resource_id': int, 'page_id': object})
@@ -37,6 +37,6 @@ def get_species(deck):
 	df = merge_provider_ids(df, 395, 'fishbaseID')
 	df = merge_provider_ids(df, 564, 'amphibiawebID')
 
-	print(len(df), 'species with IDs')
+	print(len(df), 'taxa with IDs')
 
 	df.to_csv(os.path.join('data', 'processed', f'{deck.value['type']} species.csv'), index=False)

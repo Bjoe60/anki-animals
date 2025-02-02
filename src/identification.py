@@ -189,7 +189,7 @@ def get_identification(deck):
         df_merged['identification'] = df_merged['identification'].fillna(df_merged[f'description_{col}'])
 
 
-    print(f"Species with identification info: {(df_merged['identification'] != '').sum()} / {len(df_merged)}")
+    print(f"Taxa with identification info: {(df_merged['identification'] != '').sum()} / {len(df_merged)}")
 
     df_merged = df_merged.reindex(columns=['eolID', 'identification'])
     df_merged.to_csv(os.path.join('data', 'processed', f'{deck.value['type']} species with identification.csv'), index=False)

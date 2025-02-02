@@ -13,13 +13,13 @@ def merge_rows(df):
     df = df.rename(columns={'countrycode': 'country'})
 
     # Group by species and calculate total observations
-    df['total_observations'] = df.groupby('specieskey')['observation_count'].transform('sum')
+    df['total_observations'] = df.groupby('taxonkey')['observation_count'].transform('sum')
 
     # Keep only countries with at least 5 observations (since 2000) or if the species is rare globally
     df = df[(df['observation_count'] >= 5) | (df['total_observations'] <= 300)]
 
     # Concat the countries into a single row
-    df = df.groupby('specieskey')['country'].apply(lambda x: ' '.join(x)).reset_index()
+    df = df.groupby('taxonkey')['country'].apply(lambda x: ' '.join(x)).reset_index()
     df = df.rename(columns={'country': 'countries'})
 
     
@@ -29,10 +29,10 @@ def merge_rows(df):
 def get_countries(deck):
     print("Getting countries...")
     df = pd.read_csv(os.path.join('data', 'processed', f'{deck.value['type']} species.csv'), usecols=['eolID', 'gbifID'])
-    df_countries = pd.read_csv(os.path.join('data', 'input', 'GBIF_output.csv'), sep='\t', keep_default_na=False, na_values=[''], dtype={'specieskey': int, 'countrycode': str, 'observation_count': int})
+    df_countries = pd.read_csv(os.path.join('data', 'input', 'GBIF_output.csv'), sep='\t', keep_default_na=False, na_values=[''], dtype={'taxonkey': int, 'countrycode': str, 'observation_count': int})
     
     df_countries = merge_rows(df_countries)
 
-    df = df.merge(df_countries, left_on='gbifID', right_on='specieskey', how='left')
-    df.drop(columns=['specieskey', 'gbifID'], inplace=True)
+    df = df.merge(df_countries, left_on='gbifID', right_on='taxonkey', how='left')
+    df.drop(columns=['taxonkey', 'gbifID'], inplace=True)
     df.to_csv(os.path.join('data', 'processed', f'{deck.value['type']} species with countries.csv'), index=False)
