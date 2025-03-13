@@ -10,7 +10,7 @@ WANTED_DECK = Deck.ANIMALS
 
 def main():
     # get_taxa(WANTED_DECK)
-    # get_identification(WANTED_DECK)
+    get_identification(WANTED_DECK)
     # get_translations(WANTED_DECK)
     # get_countries(WANTED_DECK)
     # get_images(WANTED_DECK)

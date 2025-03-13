@@ -35,11 +35,11 @@ def combine_data(deck):
 
     # Merge dataframes into one
     df = reduce(lambda left, right: pd.merge(left, right, on='eolID', how='left'), all_dfs)
-    
+
     remove_unwanted_imgs(df)
 
-    # Remove unwanted ranks
-    df = df[df['rank'].isin(deck.value['taxon_rank'])]
+    # Remove unwanted ranks (keep species complexes)
+    df = df[df['rank'].isin(deck.value['taxon_rank'] + ['complex'])]
 
     # Remove unwanted species
     df = df[~df['eolID'].isin(UNWANTED_SPECIES)]

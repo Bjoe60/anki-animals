@@ -3,17 +3,23 @@ import os
 import requests
 from ratelimit import limits, sleep_and_retry
 import re
+from urllib.parse import quote
+from tqdm import tqdm
 
 INAT_QUERY_URL = 'https://api.inaturalist.org/v2/taxa/%s?fields=(preferred_common_name:!t,conservation_statuses:(place:!t,status:!t),extinct:!t,observations_count:!t,rank:!t,ancestors:(rank:!t,preferred_common_name:!t,name:!t),taxon_photos:(photo:(attribution:!t,license_code:!t,large_url:!t)))'
 CONSERVATION_STATUSES = {'LC': 'Least Concern', 'NT': 'Near Threatened', 'VU': 'Vulnerable', 'EN': 'Endangered', 'CR': 'Critically Endangered', 'EW': 'Extinct in the Wild', 'EX': 'Extinct', 'DD': 'Data Deficient', 'NE': 'Not Evaluated', 'CD': 'Conservation Dependent'}
 WANTED_RANKS = {'kingdom', 'class', 'order', 'family'}
+HEADERS = {'User-Agent': 'Mozilla/5.0'}
+
+def escape_characters(text):
+    return text.replace(';;', quote(';;')).replace('|', quote('|')).replace('\xa0', '&nbsp;')
 
 # Maximum 30 requests per minute
 @sleep_and_retry
 @limits(calls=30, period=60)
 def fetch_inaturalist_data(ids):
-    query = INAT_QUERY_URL % ids
-    response = requests.get(query)
+    query = INAT_QUERY_URL % ','.join(map(str, ids))
+    response = requests.get(query, headers=HEADERS, timeout=10)
     
     if response.status_code != 200:
         raise Exception(f"API request failed with status code {response.status_code}: {response.text}")
@@ -26,13 +32,21 @@ def fetch_inaturalist_data(ids):
 def generate_images_html(photos):
     image_html_list = []
     for photo in photos:
-        # Only include images without all rights reserved
-        if photo["photo"]["license_code"]:
-            attribution = re.match(r'.*\(c\) (.+), some rights reserved.*', photo['photo']['attribution'])
-            attribution = f'{attribution.group(1)}' if attribution else '' # If no attribution, it is in the public domain
-            image_html_list.append(f'<img src="{photo["photo"]["large_url"]}">|{attribution}|{photo["photo"]["license_code"]}')
+        # Skip copyrighted images with "all rights reserved"
+        if not photo["photo"]["license_code"]:
+            continue
+
+        if photo["photo"]["license_code"] in {'cc0', 'pd', 'gfdl'}:
+            attribution = ''
+        else:
+            attribution = re.match(r'(?s).*?\(.\) (.*)(?:，|,|،|สงวนลิขสิทธิ์บางประการ).*?CC BY.*?', photo['photo']['attribution'])
+            if not attribution:
+                print(repr(photo['photo']['attribution']), photo['photo']['license_code'])
+            attribution = f'{attribution.group(1).strip('\n')}' if attribution else photo['photo']['attribution']
+
+        image_html_list.append(f'<img src="{photo["photo"]["large_url"]}">|{escape_characters(attribution)}|{escape_characters(photo["photo"]["license_code"])}')
+
     images_html = ';;'.join(image_html_list)
-    images_html = images_html.replace("'", '&#39;') # Avoid issues in Anki
     return images_html
 
 # Generate tag with common names for taxonomy
@@ -88,14 +102,14 @@ def get_images(deck):
     # Get list of ids from iNaturalist in integer format
     ids = df['inaturalistID'].unique()
 
-    # Extract the first 30 ids and make them into a string
+    # Extract 30 ids at a time and process them in one request
     batch_size = 30
     all_results = []
-    for i in range(0, len(ids), batch_size):
-        if i % (batch_size * 10) == 0:
-            print(f"Processing {i+1} of {len(ids)}")
-        batch_ids = ','.join(map(str, ids[i:i + batch_size]))
-        all_results.extend(fetch_inaturalist_data(batch_ids))
+    with tqdm(total=len(ids), desc="Processing ids") as pbar: # Make a progress bar
+        for i in range(0, len(ids), batch_size):
+            batch_ids = ids[i:i + batch_size]
+            all_results.extend(fetch_inaturalist_data(batch_ids))
+            pbar.update(len(batch_ids))
 
     results_df = process_results_to_dataframe(all_results)
     # Convert observations_count to object to allow NaNs

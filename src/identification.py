@@ -126,7 +126,8 @@ def clean_html(text):
 def add_source(text, source):
     if pd.isnull(text):
         return None
-    return re.sub(r'(<\/[^>]+>)$', fr' ({source})\1', text)
+    text = re.sub(r'(<\/[^>]+>)$', fr' ({source})\1', text)
+    return re.sub(r'(\w+)$', fr'\1 ({source})', text)
 
 
 # Gets identification information from each resource page

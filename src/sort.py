@@ -1,5 +1,6 @@
 import pandas as pd
 import os
+import csv
 
 # Sorts the rows of exported deck (to keep order when first downloaded)
 # Assuming exported notes as .txt with all options selected
@@ -9,6 +10,8 @@ TAXONOMIC_SORT_COLUMN = 9
 AS_INT = False
 
 def extract_rank(tag_string):
+    if pd.isnull(tag_string):
+        return None
     if "genus" in tag_string.split():
         return "genus"
     if "species" in tag_string.split():
@@ -29,8 +32,9 @@ def sort_rows():
     df.drop(columns=["rank"], inplace=True)
 
     # Combine with header and save
-    df = pd.concat([df_header, df])
-    df.to_csv(os.path.join('data', 'output', f'{DECK_NAME} sorted.txt'), sep='\t', index=False, header=False)
+    with open(os.path.join('data', 'output', f'{DECK_NAME} sorted.txt'), 'w', encoding='UTF8', newline='') as f:
+        df_header.to_csv(f, sep='\t', index=False, header=False)
+        df.to_csv(f, sep='\t', index=False, header=False, quoting=csv.QUOTE_STRINGS)
 
 
 if __name__ == '__main__':
