@@ -2,7 +2,7 @@
 
 Code used to generate [The Animal Deck](https://ankiweb.net/shared/info/934600214), [The Plant Deck](https://ankiweb.net/shared/info/1824327532) and [The Fungus Deck](https://ankiweb.net/shared/info/380167559).
 
-Csv files are generated consecutively for each method in main.py and combined in `combine_data()` to limit running times. Uncomment the methods where something is changed and change which species are gathered in `species.py`.
+Csv files are generated consecutively and combined in `combine_data()` to limit running times. Uncomment the methods where something is changed and change which species are gathered in `main.py`.
 
 Note that `get_images()` takes three hours to run with the API call limit, so only run it if you have changed anything in `images.py`.
 
