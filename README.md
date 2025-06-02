@@ -6,7 +6,7 @@ Csv files are generated consecutively and combined in `combine_data()` to limit 
 
 Note that `get_images()` takes three hours to run with the API call limit, so only run it if you have changed anything in `images.py`.
 
-To update the country information (`GBIF_output.csv`), you will have to become an invited tester for [GBIFs API SQL Downloads](https://techdocs.gbif.org/en/data-use/api-sql-downloads) and follow the instructions on that page.
+To update the country information (`GBIF_output.csv`), you will have register for [GBIFs API SQL Downloads](https://techdocs.gbif.org/en/data-use/api-sql-downloads) and follow the instructions on that page.
 
 ## Files
 These files were too large to upload to GitHub:
