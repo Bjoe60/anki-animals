@@ -1,0 +1,126 @@
+<br/><br/>
+<div class="title">
+	<b>{{Danish}} <!-- 1/3 replace here -->
+
+	<!-- If there is no translation, English or scientific name is shown: -->
+	{{^Danish}}   <!-- 2/3 replace here -->
+		{{English}}
+		{{^English}}
+			<i>{{Scientific}}</i>
+		{{/English}}
+	{{/Danish}}   <!-- 3/3 replace here -->
+</b></div><br/><br/>
+
+{{#Identification}}
+<hr>
+
+<b>Description</b>
+<div id="description" class="small-txt">{{Identification}}</div>
+
+{{/Identification}}
+<hr>
+
+<table>
+	{{#English}}
+	<tr>
+		<td><b>English name:</b></td>
+		<td>{{English}}</td>
+	</tr>
+	{{/English}}
+	{{#Conservation status}}
+	<tr>
+		<td><b>Cons. status:</b></td>
+		<td>{{Conservation status}}</td>
+	</tr>
+	{{/Conservation status}}
+	<tr>
+		<td><b>Observations:</b></td>
+		<td>{{Observations}}</td>
+	</tr>
+</table>
+
+<hr>
+
+<table>
+	<tr>
+		<td><b>Class:</b></td>
+		<td id="class"></td>
+	</tr>
+	<tr>
+		<td><b>Order:</b></td>
+		<td id="order"></td>
+	</tr>
+	<tr>
+		<td><b>Family:</b></td>
+		<td id="family"></td>
+	</tr>
+	<tr>
+		<td><b>Species:</b></td>
+		<td>{{Scientific}}</td>
+	</tr>
+</table>
+
+<hr>
+
+<b>Images</b><br/>
+<div id="back" class="back wrapper img-wrapper"></div>
+<div id="imgs-data" style="display: none">{{Images}}</div>
+
+<hr>
+
+<b>Reference information:</b><br/>
+ ・<a href="https://eol.org/pages/{{EOL ID}}">EOL</a><br/>
+ ・<a href="https://www.inaturalist.org/taxa/{{iNaturalist ID}}">iNaturalist</a><br/>
+ ・<a href="https://www.gbif.org/occurrence/map?basis_of_record=HUMAN_OBSERVATION&basis_of_record=MACHINE_OBSERVATION&basis_of_record=OBSERVATION&basis_of_record=OCCURRENCE&basis_of_record=LIVING_SPECIMEN&has_coordinate=true&has_geospatial_issue=false&occurrence_status=present&taxon_key={{GBIF ID}}">GBIF</a><br>
+ ・<a href="https://en.wikipedia.org/wiki/{{Scientific}}">Wikipedia</a><br>
+ ・<a href="https://www.google.com/search?q=%22{{Scientific}}%22+dansk">Check translation</a> <!-- Optionally change "dansk" to your language here -->
+
+<div id="tags-data" style="display: none">{{Tags}}</div>
+
+<script type="text/javascript">
+function insert_taxonomy() {
+	var taxonomy = document.querySelector("#tags-data").innerHTML.split(' ').find(tag => tag.startsWith('Animals::') || tag.startsWith('Plants::') || tag.startsWith('Fungi::')).replaceAll('-', ' ').split('::');
+	
+	document.querySelector('#class').innerHTML = taxonomy[1];
+	document.querySelector('#order').innerHTML = taxonomy[2];
+	document.querySelector('#family').innerHTML = taxonomy[3];
+}
+
+function unescape_uri(text) {
+	try {
+		return decodeURIComponent(text);
+	} catch (error) {
+		return text;
+	}
+}
+
+function insert_images() {
+	var images = document.querySelector("#imgs-data").innerHTML.split(';;');
+
+	var elementString = `
+<div class="img-w-txt">
+	<div class="img-container"></div>
+	<div class="credit"></div>
+</div>`
+
+var container = document.querySelector('#back');
+
+	for (var i = 0; i < images.length; i++) {
+		var e = document.createElement('div');
+		e.innerHTML = elementString;
+
+		var currImg = images[i].split('|');
+		e.querySelector('.img-container').innerHTML = currImg[0];
+		var copyright = unescape_uri(currImg[1]);
+		if (copyright.length > 0) {
+			copyright = `<a href="https://creativecommons.org/licenses/${currImg[2].substr(3)}/4.0/">©</a> ` + copyright;
+		}
+		e.querySelector('.credit').innerHTML = copyright;
+		
+		container.insertAdjacentElement('beforeend', e);
+	}
+}
+
+insert_taxonomy();
+insert_images();
+</script>

@@ -1,0 +1,64 @@
+<div class="container">
+	<div id="front-img-w-txt" class="img-w-txt">
+		<div class="img-container"></div>
+		<div class="credit"></div>
+	</div>
+</div>
+<div class="container btn-container">
+	<button class="reroll" id="btn" onclick="next_img()">
+		<b> ↻ </b>
+	</button>
+</div>
+<p id="console"></p>
+
+<script type="text/javascript">
+try {
+	var images = '{{Images}}'.split(';;');
+	var randomIdx = Math.floor(Math.random() * images.length);
+
+	if (images.length == 1) {
+		document.querySelector('#btn').style.display = "none";
+	}
+
+	function next_img() {
+		randomIdx = (randomIdx + 1) % images.length;
+		show_img();
+	}
+
+	function show_img() {
+		var currImg = images[randomIdx].split('|');
+		document.querySelector('.img-container').innerHTML = currImg[0];
+		var copyright = currImg[1];
+		if (copyright.length > 0) {
+			copyright = `<a href="https://creativecommons.org/licenses/${currImg[2].substr(3)}/4.0/">©</a> ` + copyright;
+		}
+		document.querySelector('.credit').innerHTML = copyright;
+	}
+
+	show_img();
+
+	function print(text) {
+		document.querySelector('#console').innerHTML = text;
+	}
+
+	// Adds eventlistener on first card only
+	const element = document.querySelector('#qa');
+	if (element.getAttribute('listener') !== 'true') {
+		document.addEventListener('keyup', 	function on_click(event) {
+			var imgWText = document.querySelector('#front-img-w-txt');
+
+			// Only use shortcut on this card type
+			if (imgWText) {
+				var key = event.key || event.keyCode;
+	
+				if (key === 'n' || key === 'N') {
+					next_img();
+				}
+			}
+		});
+		element.setAttribute('listener', 'true');
+	}
+} catch (error) {
+	document.querySelector('#console').innerHTML = error;
+}
+</script>
