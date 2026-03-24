@@ -12,7 +12,9 @@ WANTED_RANKS = {'kingdom', 'class', 'order', 'family'}
 HEADERS = {'User-Agent': 'Mozilla/5.0'}
 
 def escape_characters(text):
-    return text.replace(';;', quote(';;')).replace('|', quote('|')).replace('\xa0', '&nbsp;')
+    # Encode the full field so separators ';;', '|' and literal '%' cannot break decodeURIComponent.
+    normalized = str(text).replace('\xa0', '&nbsp;')
+    return quote(normalized, safe='')
 
 # Maximum 30 requests per minute
 @sleep_and_retry

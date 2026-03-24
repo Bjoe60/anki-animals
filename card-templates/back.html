@@ -64,7 +64,7 @@
 
 <b>Images</b><br/>
 <div id="back" class="back wrapper img-wrapper"></div>
-<div id="imgs-data" style="display: none">{{Images}}</div>
+<div id="back-images-data" style="display: none">{{Images}}</div>
 
 <hr>
 
@@ -97,7 +97,7 @@ function unescape_uri(text) {
 }
 
 function insert_images() {
-	var images = document.querySelector("#imgs-data").innerHTML.split(';;');
+	var images = document.querySelector("#back-images-data").innerHTML.split(';;');
 
 	var elementString = `
 <div class="img-w-txt">
@@ -114,8 +114,9 @@ var container = document.querySelector('#back');
 		var currImg = images[i].split('|');
 		e.querySelector('.img-container').innerHTML = currImg[0];
 		var copyright = unescape_uri(currImg[1]);
+		var licenseCode = unescape_uri(currImg[2]);
 		if (copyright.length > 0) {
-			copyright = `<a href="https://creativecommons.org/licenses/${currImg[2].substr(3)}/4.0/">©</a> ` + copyright;
+			copyright = `<a href="https://creativecommons.org/licenses/${licenseCode.substr(3)}/4.0/">©</a> ` + copyright;
 		}
 		e.querySelector('.credit').innerHTML = copyright;
 		

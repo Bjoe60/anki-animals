@@ -9,11 +9,12 @@
 		<b> ↻ </b>
 	</button>
 </div>
+<div id="front-images-data" style="display:none;">{{Images}}</div>
 <p id="console"></p>
 
 <script type="text/javascript">
 try {
-	var images = '{{Images}}'.split(';;');
+	var images = document.getElementById('front-images-data').innerHTML.split(';;');
 	var randomIdx = Math.floor(Math.random() * images.length);
 
 	if (images.length == 1) {
@@ -25,12 +26,21 @@ try {
 		show_img();
 	}
 
+	function unescape_uri(text) {
+		try {
+			return decodeURIComponent(text);
+		} catch (error) {
+			return text;
+		}
+	}
+
 	function show_img() {
 		var currImg = images[randomIdx].split('|');
 		document.querySelector('.img-container').innerHTML = currImg[0];
-		var copyright = currImg[1];
+		var copyright = unescape_uri(currImg[1] || '');
+		var licenseCode = unescape_uri(currImg[2] || '');
 		if (copyright.length > 0) {
-			copyright = `<a href="https://creativecommons.org/licenses/${currImg[2].substr(3)}/4.0/">©</a> ` + copyright;
+			copyright = `<a href="https://creativecommons.org/licenses/${licenseCode.substr(3)}/4.0/">©</a> ` + copyright;
 		}
 		document.querySelector('.credit').innerHTML = copyright;
 	}
@@ -41,22 +51,21 @@ try {
 		document.querySelector('#console').innerHTML = text;
 	}
 
-	// Adds eventlistener on first card only
-	const element = document.querySelector('#qa');
-	if (element.getAttribute('listener') !== 'true') {
-		document.addEventListener('keyup', 	function on_click(event) {
+	// Adds eventlistener on first card only.
+	if (!window.speciesListenerAdded) {
+		document.addEventListener('keyup', function on_species_keyup(event) {
 			var imgWText = document.querySelector('#front-img-w-txt');
 
-			// Only use shortcut on this card type
+			// Only use shortcut on this card type.
 			if (imgWText) {
 				var key = event.key || event.keyCode;
-	
+
 				if (key === 'n' || key === 'N') {
 					next_img();
 				}
 			}
 		});
-		element.setAttribute('listener', 'true');
+		window.speciesListenerAdded = true;
 	}
 } catch (error) {
 	document.querySelector('#console').innerHTML = error;
